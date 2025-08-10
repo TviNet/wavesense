@@ -6,7 +6,7 @@ Understanding of a chip design via experimentation
 
 ## How it does it?
 
-Given RTL design,
+Given an RTL design,
 
 1. Generate interesting coverpoints / stimuli
 2. Run simulation
@@ -24,7 +24,9 @@ Given RTL design,
 
 ## Usage
 
-- `OPENAI_API_KEY=<your-key> python src/wavesense.py`
+- `OPENAI_API_KEY=<your-key> python src/wavesense.py path/to/design.sv path/to/filelist.f my_artifacts_folder`
+
+Some example designs and filelists are in the `example_rtl` folder.
 
 ## Requirements
 
