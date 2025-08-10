@@ -8,11 +8,10 @@ Understanding of a chip design via experimentation
 
 Given an RTL design,
 
-1. Generate interesting coverpoints / stimuli
-2. Run simulation
-3. Generate waveforms for these
-4. Create a mental model of how the design behaves based on the generated artifacts
-5. Repeat from step 1.
+1. Hypothesis: Come up with interesting coverpoints / stimuli
+2. Experiment: Generate code and run simulation to capture waveforms for these
+3. Analysis: Create a mental model of how the design behaves based on the generated artifacts
+4. Repeat from step 1.
 
 ## Implementation details
 
