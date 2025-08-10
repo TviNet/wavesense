@@ -8,12 +8,12 @@ WaveSense is an automated tool that uses GPT-5 to understand digital hardware de
 
 WaveSense acts like an AI scientist that:
 
-- **🔍 Analyzes RTL designs** by reading Verilog/SystemVerilog code
-- **🧠 Generates intelligent test hypotheses** about different features of the design
-- **⚡  Runs targeted simulations** using industry-standard tools (VCS/Verilator)
-- **📊 Interprets waveforms** to validate or refute hypotheses
-- **📝 Builds and updates its mental model** documenting the actual behavior of the design
-- **🔄 Iteratively improves** understanding through multiple experimentation cycles
+- **Analyzes RTL designs** by reading Verilog/SystemVerilog code
+- **Generates intelligent test hypotheses** about different features of the design
+- **Runs targeted simulations** using industry-standard tools (VCS/Verilator)
+- **Interprets waveforms** to validate or refute hypotheses
+- **Builds and updates its mental model** documenting the actual behavior of the design
+- **Iteratively improves** understanding through multiple experimentation cycles
 
 ##  Key Features
 
@@ -241,4 +241,4 @@ WaveSense is particularly good at finding:
 - Generates reusable testbenches
 
 
-**WaveSense: Making RTL Design understanding as intelligent as your designs deserve.** 🚀
+**WaveSense: Making RTL Design understanding as intelligent as your designs deserve.**
