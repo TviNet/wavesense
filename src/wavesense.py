@@ -1,13 +1,20 @@
+#!/usr/bin/env python3
+
 import os
 import subprocess
+import argparse
+import sys
 
 
-def run_experiment(task_description: str, output_dir: str):
-    subprocess.run(
-        [
-            "codex",
-            "exec",
-            f"""The goal is to understand the behaviour of the design {task_description} using simulation waveforms.
+def run_experiment(top_design_file: str, filelist: str, output_dir: str):
+    # Open log file for both stdout and stderr
+    os.makedirs(output_dir, exist_ok=True)
+    with open(f"{output_dir}/log.txt", "w") as log_file:
+        subprocess.run(
+            [
+                "codex",
+                "exec",
+                f"""The goal is to understand the behaviour of the design {top_design_file} with filelist {filelist} using simulation waveforms.
 Use {output_dir} as a working directory.
 
 <iteration loop>
@@ -109,19 +116,62 @@ a b c d
     Make sure the testbench.sv files have vcd dumps.
 </simulation commands guidelines>
 """,
-        ],
-        env=os.environ.copy(),
+            ],
+            env=os.environ.copy(),
+            stdout=log_file,
+            stderr=log_file,
+        )
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="WaveSense: AI-powered RTL design analysis using simulation waveforms",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s design.v filelist.f output_dir
+  %(prog)s path/to/design.sv path/to/filelist.f my_artifacts
+  %(prog)s --help
+        """,
     )
+
+    parser.add_argument(
+        "top_design_file",
+        help="Path to the top-level design file (e.g., design.v, design.sv)",
+    )
+
+    parser.add_argument(
+        "filelist",
+        help="Path to the filelist containing all design files",
+    )
+
+    parser.add_argument("output_dir", help="Output directory for artifacts and logs")
+
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose output"
+    )
+
+    args = parser.parse_args()
+
+    # Create output directory if it doesn't exist
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    if args.verbose:
+        print(f"Starting WaveSense analysis...")
+        print(f"Top design file: {args.top_design_file}")
+        print(f"Filelist: {args.filelist}")
+        print(f"Output directory: {args.output_dir}")
+
+    try:
+        run_experiment(args.top_design_file, args.filelist, args.output_dir)
+        if args.verbose:
+            print(
+                f"Analysis completed successfully. Check {args.output_dir}/log.txt for details."
+            )
+    except Exception as e:
+        print(f"Error during analysis: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    # run_experiment(
-    #     "/home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/cdc_fifo/rtl/filelist.f with /home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/cdc_fifo/rtl/filelist.f"
-    # )
-    # run_experiment(
-    #     "/Users/vineet/Projects/Job/ChipStack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/rr_arbiter/arbiter.v with /Users/vineet/Projects/Job/ChipStack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/rr_arbiter/filelist.f"
-    # )
-    run_experiment(
-        "/home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/bedrock-rtl/counter/rtl/br_counter.sv with /home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/filelist_counter_rtl_br_counter.f",
-        "temp_artifacts",
-    )
+    main()
