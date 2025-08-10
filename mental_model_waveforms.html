@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comparator Mental Model - Waveforms</title>
     <script src="https://unpkg.com/wavedrom@3.4.0/wavedrom.min.js"></script>
+    <script src="https://unpkg.com/wavedrom@3.4.0/skins/narrow.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -114,13 +115,13 @@ me00 m00 match_mode t0           c00
             <script type="WaveDrom">
 {
   "signal": [
-    {"name": "me00", "wave": "0101", "period": 1},
-    {"name": "m00", "wave": "0101", "period": 1},
+    {"name": "me00", "wave": "0101"},
+    {"name": "m00", "wave": "0101"},
     {"name": "match_mode", "wave": "2...", "data": ["0"]},
     {"name": "t0", "wave": "2...", "data": ["0xDEADBEEF"]},
     {"name": "c00", "wave": "2324", "data": ["0xFEEDFACE", "0xDEADBEEF", "0xDEADBEF0", "0xDEADBEEF"]}
   ],
-  "config": {"hscale": 3, "skin": "narrow"},
+  "config": {"hscale": 2},
   "head": {"text": "CP1: Mode 0 - Both signals assert on exact equality"}
 }
             </script>
@@ -145,13 +146,13 @@ me00 m00 match_mode t0                   c00
             <script type="WaveDrom">
 {
   "signal": [
-    {"name": "me00", "wave": "101", "period": 1},
-    {"name": "m00", "wave": "010", "period": 1},
+    {"name": "me00", "wave": "101"},
+    {"name": "m00", "wave": "010"},
     {"name": "match_mode", "wave": "2..", "data": ["8"]},
-    {"name": "t0", "wave": "2..", "data": ["0x12345678000000AA"]},
-    {"name": "c00", "wave": "232", "data": ["0x12345678000000AA", "0x12345678000000AB", "0x12345678000000AA"]}
+    {"name": "t0", "wave": "2..", "data": ["0x...AA"]},
+    {"name": "c00", "wave": "232", "data": ["0x...AA", "0x...AB", "0x...AA"]}
   ],
-  "config": {"hscale": 3, "skin": "narrow"},
+  "config": {"hscale": 2},
   "head": {"text": "CP2: Mode 8 - m00 inverts equality, me00 stays as equality detector"}
 }
             </script>
@@ -176,13 +177,13 @@ me00 m00 match_mode t0                   c00
             <script type="WaveDrom">
 {
   "signal": [
-    {"name": "me00", "wave": "0...", "period": 1},
-    {"name": "m00", "wave": "1...", "period": 1},
+    {"name": "me00", "wave": "0..."},
+    {"name": "m00", "wave": "1..."},
     {"name": "match_mode", "wave": "2...", "data": ["1"]},
-    {"name": "t0", "wave": "2...", "data": ["0xFFFFFFFFFFFFFF00"]},
-    {"name": "c00", "wave": "2323", "data": ["0xAAAAAAAAAAAAAA55", "0xAAAAAAAAAAAAAA80", "0xAAAAAAAAAAAAAA00"]}
+    {"name": "t0", "wave": "2...", "data": ["0x...FF00"]},
+    {"name": "c00", "wave": "2323", "data": ["0x...AA55", "0x...AA80", "0x...AA00"]}
   ],
-  "config": {"hscale": 3, "skin": "narrow"},
+  "config": {"hscale": 2},
   "head": {"text": "CP3: Mode 1 - Masked compare holds across low byte variations"}
 }
             </script>
@@ -210,13 +211,13 @@ me00 m00 match_mode t0     c00
             <script type="WaveDrom">
 {
   "signal": [
-    {"name": "me00", "wave": "010|010", "period": 1},
-    {"name": "m00", "wave": "010|100", "period": 1},
-    {"name": "match_mode", "wave": "2..|3..", "data": ["2", "3"]},
-    {"name": "t0", "wave": "2......", "data": ["0x100"]},
-    {"name": "c00", "wave": "232|323", "data": ["0xFF", "0x100", "0x200", "0xFF", "0x100", "0x200"]}
+    {"name": "me00", "wave": "010010"},
+    {"name": "m00", "wave": "010100"},
+    {"name": "match_mode", "wave": "222333", "data": ["2", "2", "2", "3", "3", "3"]},
+    {"name": "t0", "wave": "2.....", "data": ["0x100"]},
+    {"name": "c00", "wave": "232323", "data": ["0xFF", "0x100", "0x200", "0xFF", "0x100", "0x200"]}
   ],
-  "config": {"hscale": 2, "skin": "narrow"},
+  "config": {"hscale": 2},
   "head": {"text": "CP4: Modes 2&3 - Unsigned >= and < comparisons"}
 }
             </script>
@@ -243,13 +244,13 @@ me00 m00 match_mode t0               c00
             <script type="WaveDrom">
 {
   "signal": [
-    {"name": "me00", "wave": "00|010", "period": 1},
-    {"name": "m00", "wave": "10|101", "period": 1},
-    {"name": "match_mode", "wave": "2.|3..", "data": ["4", "5"]},
-    {"name": "t0", "wave": "2.|3..", "data": ["0xFF000000AA00", "0xF0F00000D0A00000"]},
-    {"name": "c00", "wave": "23|232", "data": ["0x55000000AA00", "0x55000000AB00", "0xD0ADBEEF00000000", "0xC0ADBEEF00000000", "0xD0A0123400000000"]}
+    {"name": "me00", "wave": "00010"},
+    {"name": "m00", "wave": "10101"},
+    {"name": "match_mode", "wave": "22333", "data": ["4", "4", "5", "5", "5"]},
+    {"name": "t0", "wave": "22333", "data": ["0x...AA00", "0x...AB00", "0xF0F0...D0A0", "0xF0F0...D0A0", "0xF0F0...D0A0"]},
+    {"name": "c00", "wave": "23232", "data": ["0x...AA00", "0x...AB00", "0xD0AD...", "0xC0AD...", "0xD0A0..."]}
   ],
-  "config": {"hscale": 2, "skin": "narrow"},
+  "config": {"hscale": 2},
   "head": {"text": "CP5: Modes 4&5 - Masked half-word comparisons"}
 }
             </script>
@@ -271,11 +272,14 @@ me00 m00 match_mode t0               c00
     </div>
 
     <script>
-        // Initialize WaveDrom rendering
-        WaveDrom.ProcessAll();
-        
-        // Add some interactive styling
+        // Initialize WaveDrom rendering when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            // Process all WaveDrom diagrams
+            if (typeof WaveDrom !== 'undefined') {
+                WaveDrom.ProcessAll();
+            }
+            
+            // Add some interactive styling
             const containers = document.querySelectorAll('.container');
             containers.forEach(container => {
                 container.addEventListener('mouseenter', function() {
@@ -287,6 +291,13 @@ me00 m00 match_mode t0               c00
                 });
             });
         });
+        
+        // Fallback to process after a delay if needed
+        setTimeout(function() {
+            if (typeof WaveDrom !== 'undefined') {
+                WaveDrom.ProcessAll();
+            }
+        }, 1000);
     </script>
 </body>
 </html>
