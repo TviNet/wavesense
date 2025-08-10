@@ -1,0 +1,2740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Scientist - Chip Design Experiments</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a2332 50%, #2d3748 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 0 60px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.3; }
+            50% { transform: translateX(-50%) scale(1.2); opacity: 0.6; }
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            color: #a1a1aa;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .description {
+            font-size: 1rem;
+            color: #71717a;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Main Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 200px;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        /* Panel Base Styles */
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 18px;
+            color: white;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        /* Upload Panel */
+        .upload-panel {
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .upload-panel .panel-header {
+            margin-bottom: 12px;
+        }
+        
+        .upload-panel .panel-title {
+            font-size: 1rem;
+        }
+        
+        .upload-panel .design-selector {
+            margin-bottom: 12px;
+        }
+        
+        .upload-panel .design-selector label {
+            margin-bottom: 8px !important;
+            font-size: 13px !important;
+        }
+        
+        .upload-panel .design-selector select {
+            margin-bottom: 12px !important;
+            padding: 10px !important;
+            font-size: 13px !important;
+        }
+        
+        .upload-panel .btn {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        .upload-panel .design-info {
+            padding: 12px !important;
+            margin-bottom: 12px !important;
+        }
+        
+        .upload-panel .panel-icon {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(5, 150, 105, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-zone:hover {
+            border-color: rgba(5, 150, 105, 0.6);
+            background: rgba(5, 150, 105, 0.05);
+        }
+
+        .upload-zone.dragover {
+            border-color: #059669;
+            background: rgba(5, 150, 105, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #059669;
+            margin-bottom: 15px;
+        }
+
+        .file-list {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .file-icon {
+            color: #3b82f6;
+            margin-right: 10px;
+        }
+
+        /* Agent Loop Panel */
+        .loop-panel {
+            grid-column: span 1;
+        }
+
+        .loop-panel .panel-icon {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .process-step {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .process-step.active {
+            border-left-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .process-step.completed {
+            border-left-color: #059669;
+            background: rgba(5, 150, 105, 0.1);
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .step-number.active {
+            background: #3b82f6;
+        }
+
+        .step-number.completed {
+            background: #059669;
+        }
+
+        .step-content h4 {
+            color: #ffffff;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .step-content p {
+            color: #a1a1aa;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        /* Dynamic Experiment Panel */
+        .experiment-content {
+            min-height: 200px;
+        }
+
+        .log-entry {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .log-time {
+            width: 80px;
+            font-size: 11px;
+            color: #06b6d4;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .log-message {
+            color: #e2e8f0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* Live Preview */
+        .live-preview {
+            margin-top: 20px;
+            display: grid;
+            gap: 15px;
+        }
+
+        .preview-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .preview-section h5 {
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-section h5::before {
+            content: '●';
+            color: #f59e0b;
+            animation: pulse-orange 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-orange {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        .preview-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .preview-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #cbd5e1;
+            border-left: 3px solid #3b82f6;
+            animation: fadeInLeft 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Research Results Center Panel */
+        .research-results-panel {
+            grid-column: span 2;
+            min-height: 600px;
+        }
+
+        .research-results-panel .panel-icon {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            gap: 2px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            color: #a1a1aa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .tab-btn i {
+            font-size: 16px;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            height: 500px;
+        }
+
+        .tab-pane {
+            display: none;
+            height: 100%;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Content Layout (Sidebar + Detail) */
+        .content-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 100%;
+            gap: 20px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h4 {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .count-badge {
+            background: #3b82f6;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .item-list {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        .list-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .list-item.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-left: 3px solid #3b82f6;
+        }
+
+        .list-item.placeholder {
+            color: #71717a;
+            cursor: default;
+        }
+
+        .list-item.placeholder:hover {
+            background: transparent;
+        }
+
+        .item-name {
+            color: #e2e8f0;
+            font-size: 13px;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .item-status {
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .item-status.testing {
+            background: rgba(251, 191, 36, 0.2);
+            color: #f59e0b;
+        }
+
+        .item-status.confirmed {
+            background: rgba(5, 150, 105, 0.2);
+            color: #059669;
+        }
+
+        .item-status.waiting {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+
+        /* Detail Pane */
+        .detail-pane {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .detail-header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-header h4 {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .detail-content {
+            padding: 20px;
+            height: 420px;
+            overflow-y: auto;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #71717a;
+            text-align: center;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Compact Progress Panel */
+        .compact-progress {
+            padding: 15px 20px;
+        }
+
+        .progress-header {
+            margin-bottom: 12px;
+        }
+
+        .progress-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .progress-title i {
+            color: #f59e0b;
+            font-size: 16px;
+        }
+
+        .compact-metrics {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .compact-metric {
+            text-align: center;
+            flex: 1;
+        }
+
+        .compact-metric .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .compact-metric .metric-label {
+            color: #a1a1aa;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .compact-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .compact-progress-bar .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Terminal Panel (moved to bottom) */
+        .terminal-panel {
+            grid-column: span 3;
+            margin-top: 20px;
+        }
+
+        /* Center Panel - Live Analysis */
+        .analysis-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .analysis-panel .panel-icon {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+
+        .live-terminal {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .terminal-line {
+            display: flex;
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .terminal-prompt {
+            color: #06b6d4;
+            margin-right: 10px;
+        }
+
+        .terminal-text {
+            color: #e2e8f0;
+        }
+
+        .terminal-success {
+            color: #10b981;
+        }
+
+        .terminal-warning {
+            color: #f59e0b;
+        }
+
+        .terminal-error {
+            color: #ef4444;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .waveform-viewer {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .waveform-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .waveform-signals {
+            display: grid;
+            gap: 10px;
+        }
+
+        .signal-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .signal-name {
+            width: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #a1a1aa;
+        }
+
+        .signal-wave {
+            flex: 1;
+            height: 30px;
+            background: #1e293b;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wave-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #06b6d4;
+            transform: translateY(-50%);
+            animation: waveAnimation 3s ease-in-out infinite;
+        }
+
+        @keyframes waveAnimation {
+            0%, 100% { transform: translateY(-50%) scaleY(1); }
+            50% { transform: translateY(-50%) scaleY(2); }
+        }
+
+        /* Progress Panel */
+        .progress-panel .panel-icon {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        /* Vertical Progress Panel */
+        .vertical-progress {
+            padding: 20px 15px;
+            height: fit-content;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .progress-header.vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .progress-header.vertical i {
+            font-size: 1.5rem;
+            color: #f59e0b;
+        }
+        
+        .progress-header.vertical span {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .vertical-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .vertical-metric {
+            text-align: center;
+            padding: 15px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .vertical-metric .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f59e0b;
+            margin-bottom: 5px;
+        }
+        
+        .vertical-metric .metric-label {
+            font-size: 0.8rem;
+            color: #a1a1aa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .vertical-progress-bar {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            width: 20px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 100px;
+        }
+        
+        .progress-fill-vertical {
+            background: linear-gradient(to top, #f59e0b 0%, #d97706 100%);
+            border-radius: 10px;
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            transition: height 0.3s ease;
+        }
+
+        .progress-metrics {
+            display: grid;
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #a1a1aa;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Hypothesis Display */
+        .hypothesis-panel {
+            grid-column: span 3;
+            margin-top: 20px;
+        }
+
+        .hypothesis-panel .panel-icon {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .hypothesis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .hypothesis-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #8b5cf6;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .hypothesis-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .hypothesis-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .hypothesis-number {
+            background: #8b5cf6;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .hypothesis-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .hypothesis-status.testing {
+            background: rgba(251, 191, 36, 0.2);
+            color: #f59e0b;
+        }
+
+        .hypothesis-status.confirmed {
+            background: rgba(5, 150, 105, 0.2);
+            color: #059669;
+        }
+
+        .hypothesis-status.refuted {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .hypothesis-text {
+            color: #e2e8f0;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .hypothesis-context {
+            color: #94a3b8;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        /* Mental Model Visualization */
+        .mental-model-panel {
+            grid-column: span 3;
+            margin-top: 20px;
+        }
+
+        .mental-model-panel .panel-icon {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .model-visualization {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #f59e0b;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .feature-description {
+            color: #a1a1aa;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .feature-waveform {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #e2e8f0;
+            overflow-x: auto;
+        }
+
+        /* Control Buttons */
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary-alt {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-secondary-alt:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-multi-line {
+            min-width: 180px;
+            padding: 12px 20px;
+            line-height: 1.2;
+            white-space: normal;
+            text-align: center;
+        }
+
+        .btn-multi-line .btn-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .vertical-progress {
+                flex-direction: row;
+                min-height: auto;
+                height: auto;
+            }
+            
+            .vertical-metrics {
+                flex-direction: row;
+                justify-content: space-around;
+                margin-bottom: 20px;
+            }
+            
+            .vertical-progress-bar {
+                width: 100%;
+                height: 6px;
+                margin: 0;
+            }
+            
+            .progress-fill-vertical {
+                background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+                width: 0%;
+                height: 100%;
+                position: absolute;
+                left: 0;
+                bottom: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .model-visualization {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-left: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-brain"></i>AI Scientist</h1>
+            <p class="subtitle">Chip Design Research & Discovery</p>
+            <p class="description">
+                Advanced AI scientist that automatically investigates RTL designs through iterative hypothesis generation,
+                experimentation, and waveform research to build comprehensive mental models of digital circuits.
+            </p>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div class="dashboard-grid">
+            <!-- Upload Panel -->
+            <div class="panel upload-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <div class="panel-title">RTL Upload</div>
+                </div>
+                
+                <div class="design-selector">
+                    <label for="designSelect" style="display: block; margin-bottom: 10px; color: #a1a1aa; font-size: 14px;">
+                        Select Design from Server:
+                    </label>
+                    <select id="designSelect" onchange="selectDesign()" style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; font-size: 14px; margin-bottom: 15px;">
+                        <option value="">Choose a design...</option>
+                        <option value="comparator">Comparator (Digital Comparison Logic)</option>
+                        <option value="counter">Counter (8-bit Up Counter)</option>
+                        <option value="fifo">FIFO (Cross-Clock Domain Buffer)</option>
+                    </select>
+                </div>
+                
+                <div class="file-list" id="fileList">
+                    <!-- Selected design files will appear here -->
+                </div>
+                
+                <div class="design-info" id="designInfo" style="display: none; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <div class="info-content" id="infoContent"></div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="startAnalysis()" id="startBtn" disabled>
+                        <i class="fas fa-flask"></i>
+                        Start Experiment
+                    </button>
+                </div>
+            </div>
+
+            <!-- Research Results Center Panel -->
+            <div class="panel research-results-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <div class="panel-title">Research Results</div>
+                </div>
+                
+                <!-- Tab Navigation -->
+                <div class="tab-navigation">
+                    <button class="tab-btn active" onclick="switchTab('hypotheses')" id="hypothesesTab">
+                        <i class="fas fa-lightbulb"></i>
+                        Generated Hypotheses
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('mental-model')" id="mentalModelTab">
+                        <i class="fas fa-brain"></i>
+                        Mental Model
+                    </button>
+                </div>
+                
+                <!-- Tab Contents -->
+                <div class="tab-content">
+                    <!-- Hypotheses Tab -->
+                    <div id="hypothesesTabContent" class="tab-pane active">
+                        <div class="content-layout">
+                            <div class="sidebar">
+                                <div class="sidebar-header">
+                                    <h4>Hypotheses List</h4>
+                                    <span class="count-badge" id="hypothesesCountBadge">0</span>
+                                </div>
+                                <div class="item-list" id="hypothesesList">
+                                    <div class="list-item placeholder">
+                                        <div class="item-name">No hypotheses generated yet</div>
+                                        <div class="item-status">waiting</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="detail-pane">
+                                <div class="detail-header">
+                                    <h4 id="hypothesesDetailTitle">Select a hypothesis to view details</h4>
+                                </div>
+                                <div class="detail-content" id="hypothesesDetailContent">
+                                    <div class="empty-state">
+                                        <i class="fas fa-lightbulb"></i>
+                                        <p>Start experiment to generate hypotheses</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mental Model Tab -->
+                    <div id="mentalModelTabContent" class="tab-pane">
+                        <div class="content-layout">
+                            <div class="sidebar">
+                                <div class="sidebar-header">
+                                    <h4>Design Features</h4>
+                                    <span class="count-badge" id="mentalModelCountBadge">0</span>
+                                </div>
+                                <div class="item-list" id="mentalModelList">
+                                    <div class="list-item placeholder">
+                                        <div class="item-name">No mental model generated yet</div>
+                                        <div class="item-status">waiting</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="detail-pane">
+                                <div class="detail-header">
+                                    <h4 id="mentalModelDetailTitle">Select a feature to view details</h4>
+                                </div>
+                                <div class="detail-content" id="mentalModelDetailContent">
+                                    <div class="empty-state">
+                                        <i class="fas fa-brain"></i>
+                                        <p>Mental model insights will appear here</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Live Research Terminal (moved to bottom) -->
+        <div class="panel analysis-panel terminal-panel">
+            <div class="panel-header">
+                <div class="panel-icon">
+                    <i class="fas fa-terminal"></i>
+                </div>
+                <div class="panel-title">Live Research Terminal</div>
+            </div>
+            
+            <div class="live-terminal" id="terminal">
+                <div class="terminal-line">
+                    <span class="terminal-prompt">ai-scientist@wavesense:~$</span>
+                    <span class="terminal-text">Waiting for RTL files...</span>
+                </div>
+            </div>
+            
+            <div class="waveform-viewer" id="waveformViewer" style="display: none;">
+                <div class="waveform-header">
+                    <h4>Live Waveform Analysis</h4>
+                    <span class="terminal-success">● Recording</span>
+                </div>
+                <div class="waveform-signals">
+                    <div class="signal-row">
+                        <div class="signal-name">clk</div>
+                        <div class="signal-wave"><div class="wave-line"></div></div>
+                    </div>
+                    <div class="signal-row">
+                        <div class="signal-name">rst</div>
+                        <div class="signal-wave"><div class="wave-line"></div></div>
+                    </div>
+                    <div class="signal-row">
+                        <div class="signal-name">match</div>
+                        <div class="signal-wave"><div class="wave-line"></div></div>
+                    </div>
+                    <div class="signal-row">
+                        <div class="signal-name">match_eq</div>
+                        <div class="signal-wave"><div class="wave-line"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let analysisRunning = false;
+        let currentStep = 0;
+        let iterationCount = 0;
+        let terminalLines = [];
+        let selectedDesign = null;
+
+        // Dynamic design configurations loaded from server
+        let designs = {};
+        let availableDesigns = [];
+
+        // API Configuration for development
+        const API_BASE = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+            ? 'http://localhost:8888' 
+            : window.location.origin;
+
+        // Load available designs from server
+        async function loadAvailableDesigns() {
+            try {
+                addTerminalLine('text', 'Scanning server for available RTL designs...');
+                
+                const response = await fetch(`${API_BASE}/api/designs`);
+                if (response.ok) {
+                    const serverDesigns = await response.json();
+                    designs = serverDesigns;
+                    addTerminalLine('success', `Found ${Object.keys(designs).length} RTL designs: ${Object.keys(designs).join(', ')}`);
+                    populateDesignDropdown();
+                } else {
+                    addTerminalLine('error', 'Failed to load designs from server');
+                    await parseLocalDesigns();
+                }
+            } catch (error) {
+                addTerminalLine('warning', `Could not load designs from server: ${error.message}`);
+                await parseLocalDesigns();
+            }
+        }
+
+        // Parse designs from actual server file structure and wavesense.py
+        async function parseLocalDesigns() {
+            // Parse the actual wavesense.py file to extract design paths
+            const wavesenseConfig = await parseWavesenseConfig();
+            
+            // Scan for actual RTL directories and files
+            const rtlStructure = await scanRTLDirectories();
+            
+            // Combine the information to build design catalog
+            designs = buildDesignCatalog(wavesenseConfig, rtlStructure);
+            populateDesignDropdown();
+            
+            addTerminalLine('success', `Discovered ${Object.keys(designs).length} designs from server`);
+        }
+
+        // Parse wavesense.py to extract actual design paths being used
+        async function parseWavesenseConfig() {
+            try {
+                const response = await fetch(`${API_BASE}/src/wavesense.py`);
+                const content = await response.text();
+                
+                // Extract run_experiment calls to find actual design paths
+                const experimentPaths = [];
+                const lines = content.split('\n');
+                
+                for (const line of lines) {
+                    if (line.trim().includes('run_experiment(') && !line.trim().startsWith('#')) {
+                        const match = line.match(/run_experiment\(\s*["']([^"']+)["']/);
+                        if (match) {
+                            experimentPaths.push(match[1]);
+                        }
+                    }
+                }
+                
+                addTerminalLine('text', `Found ${experimentPaths.length} active experiment paths in wavesense.py`);
+                return experimentPaths;
+            } catch (error) {
+                addTerminalLine('warning', 'Could not parse wavesense.py, using default paths');
+                return [];
+            }
+        }
+
+        // Scan RTL directories for actual files
+        async function scanRTLDirectories() {
+            const rtlStructure = {};
+            
+            try {
+                // Get directory listing from server
+                const response = await fetch(`${API_BASE}/api/rtl-scan`);
+                if (response.ok) {
+                    return await response.json();
+                }
+            } catch (error) {
+                addTerminalLine('text', 'Using embedded RTL structure information...');
+            }
+            
+            // Fallback: Use known structure based on actual project
+            return {
+                'comparator': {
+                    files: ['comparator.sv', 'filelist.f'],
+                    path: '/home/vivek_cstack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/comparator/',
+                    lastModified: '2024-01-15'
+                },
+                'counter': {
+                    files: ['br_counter.sv'],
+                    path: '/home/vivek_cstack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/bedrock-rtl/counter/rtl/',
+                    lastModified: '2024-01-10'
+                },
+                'fifo': {
+                    files: ['cdc_fifo.sv'],
+                    path: '/home/vivek_cstack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/cdc_fifo/rtl/',
+                    lastModified: '2024-01-08'
+                }
+            };
+        }
+
+        // Build design catalog from parsed information
+        function buildDesignCatalog(experimentPaths, rtlStructure) {
+            const catalog = {};
+            
+            // Map experiment paths to RTL structure
+            for (const [designKey, info] of Object.entries(rtlStructure)) {
+                const designName = designKey.charAt(0).toUpperCase() + designKey.slice(1);
+                
+                catalog[designKey] = {
+                    name: designName,
+                    description: inferDesignDescription(designKey, info),
+                    files: info.files.map(filename => ({
+                        name: filename,
+                        path: info.path + filename,
+                        type: getFileType(filename),
+                        size: 'Unknown', // Would be populated by real file scan
+                        lastModified: info.lastModified
+                    })),
+                    complexity: inferComplexity(info.files.length, designKey),
+                    features: inferFeatures(designKey),
+                    serverPath: info.path,
+                    isActive: experimentPaths.some(path => path.includes(designKey))
+                };
+            }
+            
+            return catalog;
+        }
+
+        // Infer design description from name and file structure
+        function inferDesignDescription(designKey, info) {
+            const descriptions = {
+                'comparator': 'Digital comparison logic with multiple comparison modes extracted from actual RTL analysis',
+                'counter': 'Counter design from bedrock RTL library with clock and reset logic',
+                'fifo': 'Cross-clock domain FIFO buffer with synchronization mechanisms',
+                'arbiter': 'Round-robin arbiter for resource allocation',
+                'multiplier': 'Digital multiplier with configurable width'
+            };
+            
+            return descriptions[designKey] || `${designKey} design (${info.files.length} files) - discovered from server RTL directory`;
+        }
+
+        // Determine file type from extension
+        function getFileType(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const types = {
+                'sv': 'SystemVerilog',
+                'v': 'Verilog',
+                'vhd': 'VHDL',
+                'vhdl': 'VHDL',
+                'f': 'Filelist',
+                'flist': 'Filelist'
+            };
+            return types[ext] || 'Unknown';
+        }
+
+        // Infer complexity based on file count and design type
+        function inferComplexity(fileCount, designKey) {
+            if (designKey.includes('fifo') || designKey.includes('arbiter')) return 'Complex';
+            if (designKey.includes('counter') || designKey.includes('mux')) return 'Simple';
+            return 'Medium';
+        }
+
+        // Infer features based on design type
+        function inferFeatures(designKey) {
+            const features = {
+                'comparator': ['Equality comparison', 'Masked comparison', 'Relational operations'],
+                'counter': ['Clock synchronization', 'Reset logic', 'Enable control'],
+                'fifo': ['Clock domain crossing', 'FIFO management', 'Flag generation'],
+                'arbiter': ['Round-robin scheduling', 'Request arbitration', 'Grant logic'],
+                'multiplier': ['Arithmetic operations', 'Pipeline stages', 'Overflow handling']
+            };
+            return features[designKey] || ['Digital logic', 'Combinational circuits', 'Sequential elements'];
+        }
+
+        // Populate dropdown with discovered designs
+        function populateDesignDropdown() {
+            const selectElement = document.getElementById('designSelect');
+            selectElement.innerHTML = '<option value="">Choose a design...</option>';
+            
+            for (const [key, design] of Object.entries(designs)) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = `${design.name} (${design.complexity}) ${design.isActive ? '🟢' : '⚪'}`;
+                selectElement.appendChild(option);
+            }
+            
+            addTerminalLine('success', `Populated dropdown with ${Object.keys(designs).length} available designs`);
+        }
+
+        // Design Selection Handling
+        function selectDesign() {
+            const selectElement = document.getElementById('designSelect');
+            const designKey = selectElement.value;
+            
+            if (!designKey) {
+                selectedDesign = null;
+                document.getElementById('fileList').innerHTML = '';
+                            document.getElementById('designInfo').style.display = 'none';
+            document.getElementById('startBtn').disabled = true;
+
+            return;
+            }
+            
+            selectedDesign = designs[designKey];
+            updateFileList();
+            updateDesignInfo();
+            document.getElementById('startBtn').disabled = false;
+
+            
+            addTerminalLine('success', `Selected ${selectedDesign.name} design from server`);
+            addTerminalLine('text', `Loaded ${selectedDesign.files.length} file(s) from ${selectedDesign.files[0].path.split('/')[0]}/ directory`);
+            
+            // Update experiment logs
+            updateExperimentLogs(`${selectedDesign.name} design selected`, 'Ready to generate mental model or start experiments');
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            selectedDesign.files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <i class="fas fa-microchip file-icon"></i>
+                    <div>
+                        <div style="font-weight: 500;">${file.name}</div>
+                        <div style="font-size: 12px; color: #a1a1aa;">${file.path}</div>
+                    </div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function updateDesignInfo() {
+            const designInfo = document.getElementById('designInfo');
+            const infoContent = document.getElementById('infoContent');
+            
+            infoContent.innerHTML = `
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: #ffffff;">${selectedDesign.name}</strong>
+                    <span style="float: right; padding: 2px 8px; background: rgba(139,92,246,0.2); border-radius: 12px; font-size: 11px; color: #8b5cf6;">
+                        ${selectedDesign.complexity}
+                    </span>
+                </div>
+                <div style="color: #a1a1aa; font-size: 14px; margin-bottom: 10px; line-height: 1.4;">
+                    ${selectedDesign.description}
+                </div>
+                <div style="color: #71717a; font-size: 12px;">
+                    <strong>Key Features:</strong> ${selectedDesign.features.join(', ')}
+                </div>
+            `;
+            
+            designInfo.style.display = 'block';
+        }
+
+        // Terminal Functions
+        function addTerminalLine(type, text) {
+            const terminal = document.getElementById('terminal');
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            
+            const prompt = document.createElement('span');
+            prompt.className = 'terminal-prompt';
+            prompt.textContent = 'ai-scientist@wavesense:~$';
+            
+            const content = document.createElement('span');
+            content.className = `terminal-${type}`;
+            content.textContent = text;
+            
+            line.appendChild(prompt);
+            line.appendChild(content);
+            terminal.appendChild(line);
+            
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            // Animate the line
+            setTimeout(() => {
+                line.style.animationDelay = '0s';
+            }, 50);
+        }
+
+        let analysisProcess = null;
+        let analysisAbortController = null;
+
+        // Switch experiment panel to different states
+        function switchExperimentPanel(state) {
+            // Hide all panels
+            document.getElementById('experimentLogs').style.display = 'none';
+            document.getElementById('mentalModelGeneration').style.display = 'none';
+            document.getElementById('iterativeExperiments').style.display = 'none';
+            
+            // Update title and icon based on state
+            const titleElement = document.getElementById('experimentPanelTitle');
+            const iconElement = document.querySelector('.loop-panel .panel-icon i');
+            
+            switch(state) {
+                case 'logs':
+                    document.getElementById('experimentLogs').style.display = 'block';
+                    titleElement.textContent = 'Experiment Logs';
+                    iconElement.className = 'fas fa-clipboard-list';
+                    break;
+                case 'mental-model':
+                    document.getElementById('mentalModelGeneration').style.display = 'block';
+                    titleElement.textContent = 'Mental Model Generation';
+                    iconElement.className = 'fas fa-brain';
+                    break;
+                case 'experiments':
+                    document.getElementById('iterativeExperiments').style.display = 'block';
+                    titleElement.textContent = 'Iterative Experiments';
+                    iconElement.className = 'fas fa-flask';
+                    break;
+            }
+        }
+
+        // Generate Initial Mental Model using Codex
+        async function generateInitialMentalModel() {
+            if (!selectedDesign) return;
+            
+            // Switch to mental model generation view
+            // switchExperimentPanel('mental-model'); // Removed experiment panel
+            
+            addTerminalLine('text', `Starting RTL parsing and mental model generation for ${selectedDesign.name}...`);
+            addTerminalLine('text', 'Generating coverpoints...');
+            
+            // Disable the button during generation
+
+            
+            // Start live preview simulation
+            startMentalModelPreview();
+            
+            try {
+                // Call the backend to run the mental model generation
+                const rtlFilePath = selectedDesign.files[0].path;
+                const designName = selectedDesign.name.toLowerCase();
+                
+                const response = await fetch(`${API_BASE}/api/generate-mental-model`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        rtl_file_path: rtlFilePath,
+                        design_name: designName
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+
+                // Stream the real output
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n').filter(line => line.trim());
+                    
+                    for (const line of lines) {
+                        try {
+                            const data = JSON.parse(line);
+                            handleMentalModelUpdate(data);
+                        } catch (e) {
+                            // Handle plain text output
+                            addTerminalLine('text', line);
+                        }
+                    }
+                }
+
+                // After completion, load the generated artifacts
+                addTerminalLine('success', 'Mental model generation completed! Loading generated files...');
+                await loadGeneratedMentalModelArtifacts(designName);
+                
+            } catch (error) {
+                addTerminalLine('error', `Mental model generation failed: ${error.message}`);
+                // Fallback to local generation
+                addTerminalLine('warning', 'Falling back to local hypothesis generation...');
+                generateInitialHypotheses(selectedDesign);
+                setTimeout(() => {
+                    generateMentalModel();
+                    addTerminalLine('success', 'Fallback mental model generated! Ready to start experiments for probing the design dynamics.');
+                    document.getElementById('exportBtn').disabled = false;
+                }, 2000);
+            } finally {
+                // Re-enable the button
+    
+            }
+        }
+
+        // Start Analysis - Actually run wavesense.py
+        async function startAnalysis() {
+            if (!selectedDesign) return;
+            
+            // Switch to iterative experiments view
+            // switchExperimentPanel('experiments'); // Removed experiment panel
+            
+            analysisRunning = true;
+            analysisAbortController = new AbortController();
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            
+            addTerminalLine('text', `Starting experimental research on ${selectedDesign.name} design...`);
+            addTerminalLine('text', 'Executing wavesense.py with actual design path...');
+            
+            try {
+                // Execute the real wavesense.py process
+                await executeWavesense(selectedDesign);
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    addTerminalLine('warning', 'Experiment paused by user');
+                } else {
+                    addTerminalLine('error', `Analysis failed: ${error.message}`);
+                }
+            } finally {
+                analysisRunning = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                document.getElementById('exportBtn').disabled = false;
+            }
+        }
+
+        // Execute the actual wavesense.py script
+        async function executeWavesense(design) {
+            addTerminalLine('text', `Modifying wavesense.py to use design path: ${design.serverPath}`);
+            
+            // Update wavesense.py with the selected design path
+            const designPath = design.files[0].path;
+            const filelistPath = design.files.find(f => f.name.includes('filelist') || f.name.includes('.f'))?.path || '';
+            const fullPath = filelistPath ? `${designPath} with ${filelistPath}` : designPath;
+            
+            addTerminalLine('text', `Executing: python3 src/wavesense.py with path "${fullPath}"`);
+            
+            try {
+                // Call the backend to execute wavesense.py
+                const response = await fetch(`${API_BASE}/api/run-wavesense`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        design_path: fullPath,
+                        design_name: design.name.toLowerCase()
+                    }),
+                    signal: analysisAbortController.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+
+                // Stream the real output
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n').filter(line => line.trim());
+                    
+                    for (const line of lines) {
+                        try {
+                            const data = JSON.parse(line);
+                            handleRealTimeUpdate(data);
+                        } catch (e) {
+                            // Handle plain text output
+                            addTerminalLine('text', line);
+                        }
+                    }
+                }
+
+                addTerminalLine('success', 'Wavesense analysis completed successfully!');
+                await loadGeneratedArtifacts(design.name.toLowerCase());
+                
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    addTerminalLine('warning', 'Experiment cancelled by user');
+                    // Call backend to cleanup/kill the process
+                    fetch(`${API_BASE}/api/cancel-wavesense`, { method: 'POST' });
+                } else {
+                    addTerminalLine('error', `Execution failed: ${error.message}`);
+                    // Fallback to local simulation for demo
+                    addTerminalLine('warning', 'Falling back to simulation mode...');
+                    await simulateAnalysisLoop();
+                }
+            }
+        }
+
+        // Start mental model preview simulation
+        function startMentalModelPreview() {
+            // Clear previous previews
+            document.getElementById('mentalModelPreview').innerHTML = '<div class="preview-item">Analyzing design structure...</div>';
+            document.getElementById('refinementPreview').innerHTML = '<div class="preview-item">Validating design patterns...</div>';
+            
+            // Reset step states
+            ['mmStep1', 'mmStep2'].forEach(stepId => {
+                document.getElementById(stepId).classList.remove('active', 'completed');
+                document.getElementById(stepId).querySelector('.step-number').classList.remove('active', 'completed');
+            });
+            
+            // Activate step 1
+            document.getElementById('mmStep1').classList.add('active');
+            document.getElementById('mmStep1').querySelector('.step-number').classList.add('active');
+            
+            // Mental model preview items
+            const mentalModelItems = [
+                "Identified input signals: clk, rst, data_in, enable",
+                "Found sequential logic: D flip-flops for state storage", 
+                "Detected combinational logic: comparison operations",
+                "Inferred state machine: 3-state counter with overflow",
+                "Key behavior: Increments on clock edge when enabled"
+            ];
+            
+            // Refinement preview items  
+            const refinementItems = [
+                "Cross-validating signal relationships",
+                "Confirming state transition logic",
+                "Verifying timing dependencies",
+                "Validating edge case handling",
+                "Finalizing behavioral patterns"
+            ];
+            
+            let mmIndex = 0;
+            let refinementIndex = 0;
+            
+            // Add mental model items gradually
+            const mmInterval = setInterval(() => {
+                if (mmIndex < mentalModelItems.length) {
+                    addPreviewItem('mentalModelPreview', mentalModelItems[mmIndex], mmIndex);
+                    mmIndex++;
+                } else {
+                    clearInterval(mmInterval);
+                    // Complete step 1, start step 2
+                    setTimeout(() => {
+                        document.getElementById('mmStep1').classList.remove('active');
+                        document.getElementById('mmStep1').classList.add('completed');
+                        document.getElementById('mmStep1').querySelector('.step-number').classList.remove('active');
+                        document.getElementById('mmStep1').querySelector('.step-number').classList.add('completed');
+                        
+                        document.getElementById('mmStep2').classList.add('active');
+                        document.getElementById('mmStep2').querySelector('.step-number').classList.add('active');
+                    }, 500);
+                }
+            }, 800);
+            
+            // Add refinement items with delay
+            setTimeout(() => {
+                const refinementInterval = setInterval(() => {
+                    if (refinementIndex < refinementItems.length) {
+                        addPreviewItem('refinementPreview', refinementItems[refinementIndex], refinementIndex);
+                        refinementIndex++;
+                    } else {
+                        clearInterval(refinementInterval);
+                        // Complete step 2
+                        setTimeout(() => {
+                            document.getElementById('mmStep2').classList.remove('active');
+                            document.getElementById('mmStep2').classList.add('completed');
+                            document.getElementById('mmStep2').querySelector('.step-number').classList.remove('active');
+                            document.getElementById('mmStep2').querySelector('.step-number').classList.add('completed');
+                        }, 500);
+                    }
+                }, 1000);
+            }, 3000); // Start refinement after mental model begins
+        }
+        
+        function addPreviewItem(containerId, text, index) {
+            const container = document.getElementById(containerId);
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.textContent = text;
+            item.style.animationDelay = `${index * 0.1}s`;
+            container.appendChild(item);
+        }
+        
+        // Update experiment logs
+        function updateExperimentLogs(status, message) {
+            const logsContainer = document.getElementById('experimentLogs');
+            logsContainer.innerHTML = `
+                <div class="log-entry">
+                    <div class="log-time">${new Date().toLocaleTimeString().slice(0,5)}</div>
+                    <div class="log-message">${status}</div>
+                </div>
+                <div class="log-entry">
+                    <div class="log-time">Next</div>
+                    <div class="log-message">${message}</div>
+                </div>
+            `;
+        }
+        
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Remove active class from all tabs and tab panes
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            
+            // Add active class to selected tab and pane
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            
+            let tabContentId;
+            switch(tabName) {
+                case 'hypotheses':
+                    tabContentId = 'hypothesesTabContent';
+                    break;
+                case 'mental-model':
+                    tabContentId = 'mentalModelTabContent';
+                    break;
+            }
+            
+            document.getElementById(tabContentId).classList.add('active');
+        }
+        
+        // Add hypothesis to the new tabbed interface
+        function addHypothesisToTab(hypothesis, number) {
+            const hypothesesList = document.getElementById('hypothesesList');
+            
+            // Remove placeholder if it exists
+            const placeholder = hypothesesList.querySelector('.placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
+            
+            // Create list item
+            const listItem = document.createElement('div');
+            listItem.className = 'list-item';
+            listItem.setAttribute('data-hypothesis-id', `h${number}`);
+            listItem.innerHTML = `
+                <div class="item-name">H${number}: ${hypothesis.text.substring(0, 40)}${hypothesis.text.length > 40 ? '...' : ''}</div>
+                <div class="item-status ${hypothesis.status}">${hypothesis.status.toUpperCase()}</div>
+            `;
+            
+            // Add click handler
+            listItem.onclick = () => selectHypothesis(hypothesis, number, listItem);
+            
+            hypothesesList.appendChild(listItem);
+            
+            // Update count
+            document.getElementById('hypothesesCountBadge').textContent = hypothesesList.children.length;
+            
+            // Auto-select first hypothesis
+            if (number === 1) {
+                selectHypothesis(hypothesis, number, listItem);
+            }
+        }
+        
+        function selectHypothesis(hypothesis, number, listItem) {
+            // Remove active class from other items
+            document.querySelectorAll('#hypothesesList .list-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to selected item
+            listItem.classList.add('active');
+            
+            // Update detail pane
+            document.getElementById('hypothesesDetailTitle').textContent = `Hypothesis ${number}`;
+            document.getElementById('hypothesesDetailContent').innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="background: #8b5cf6; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">H${number}</span>
+                        <span style="background: rgba(251, 191, 36, 0.2); color: #f59e0b; padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 600; text-transform: uppercase;">${hypothesis.status}</span>
+                    </div>
+                    <h5 style="color: #ffffff; margin-bottom: 15px; font-size: 16px;">Hypothesis Statement</h5>
+                    <p style="color: #e2e8f0; line-height: 1.6; margin-bottom: 20px;">${hypothesis.text}</p>
+                    <h5 style="color: #ffffff; margin-bottom: 10px; font-size: 14px;">Research Context</h5>
+                    <p style="color: #cbd5e1; font-style: italic; font-size: 14px;">${hypothesis.context}</p>
+                </div>
+            `;
+        }
+        
+        // Add mental model feature to the new tabbed interface
+        function addMentalModelFeatureToTab(feature, index) {
+            const mentalModelList = document.getElementById('mentalModelList');
+            
+            // Remove placeholder if it exists
+            const placeholder = mentalModelList.querySelector('.placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
+            
+            // Create list item
+            const listItem = document.createElement('div');
+            listItem.className = 'list-item';
+            listItem.innerHTML = `
+                <div class="item-name">${feature.title}</div>
+                <div class="item-status confirmed">ANALYZED</div>
+            `;
+            
+            // Add click handler
+            listItem.onclick = () => selectMentalModelFeature(feature, listItem);
+            
+            mentalModelList.appendChild(listItem);
+            
+            // Update count
+            document.getElementById('mentalModelCountBadge').textContent = mentalModelList.children.length;
+            
+            // Auto-select first feature
+            if (index === 0) {
+                selectMentalModelFeature(feature, listItem);
+            }
+        }
+        
+        function selectMentalModelFeature(feature, listItem) {
+            // Remove active class from other items
+            document.querySelectorAll('#mentalModelList .list-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to selected item
+            listItem.classList.add('active');
+            
+            // Update detail pane
+            document.getElementById('mentalModelDetailTitle').textContent = feature.title;
+            document.getElementById('mentalModelDetailContent').innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h5 style="color: #ffffff; margin-bottom: 15px; font-size: 16px;">${feature.title}</h5>
+                    <p style="color: #e2e8f0; line-height: 1.6; margin-bottom: 20px;">${feature.description}</p>
+                    <h5 style="color: #ffffff; margin-bottom: 10px; font-size: 14px;">Waveform Pattern</h5>
+                    <div style="background: #1e293b; border-radius: 8px; padding: 15px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #e2e8f0; overflow-x: auto;">
+                        <pre style="margin: 0; white-space: pre-wrap;">${feature.waveform}</pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Handle real-time updates from mental model generation
+        function handleMentalModelUpdate(data) {
+            switch (data.type) {
+                case 'step_start':
+                    updateStepStatus(data.step_index, 'active');
+                    addTerminalLine('text', `Executing ${data.step_name}...`);
+                    break;
+                    
+                case 'step_complete':
+                    updateStepStatus(data.step_index, 'completed');
+                    addTerminalLine('success', `✓ ${data.step_name} completed`);
+                    break;
+                    
+                case 'progress':
+                    const progressBar = document.getElementById('progressBar');
+                    if (window.innerWidth <= 1200) {
+                        progressBar.style.width = `${data.percentage}%`;
+                        progressBar.style.height = '100%';
+                    } else {
+                        progressBar.style.height = `${data.percentage}%`;
+                        progressBar.style.width = '100%';
+                    }
+                    break;
+                    
+                case 'terminal_output':
+                    const outputType = data.level || 'text';
+                    addTerminalLine(outputType, data.message);
+                    break;
+                    
+                case 'error':
+                    addTerminalLine('error', data.message);
+                    break;
+                    
+                default:
+                    addTerminalLine('text', data.message || JSON.stringify(data));
+            }
+        }
+
+        // Load generated mental model artifacts
+        async function loadGeneratedMentalModelArtifacts(designName) {
+            try {
+                // Try to load initial_mental_model.md
+                const mentalModelResponse = await fetch(`${API_BASE}/${designName}_artifacts/initial_mental_model.md`);
+                if (mentalModelResponse.ok) {
+                    const content = await mentalModelResponse.text();
+                    parseAndDisplayMentalModel(content);
+                    addTerminalLine('success', 'Loaded initial mental model after parsing the RTL');
+                }
+                
+                // Try to load design_analysis.md
+                const analysisResponse = await fetch(`${API_BASE}/${designName}_artifacts/design_analysis.md`);
+                if (analysisResponse.ok) {
+                    addTerminalLine('success', 'Loaded detailed design analysis');
+                }
+                
+                document.getElementById('exportBtn').disabled = false;
+                
+            } catch (error) {
+                addTerminalLine('warning', `Could not load some generated files: ${error.message}`);
+                // Fallback to example mental model
+                generateMentalModel();
+            }
+        }
+
+        // Parse and display the generated mental model
+        function parseAndDisplayMentalModel(content) {
+            const mentalModel = document.getElementById('mentalModel');
+            mentalModel.innerHTML = '';
+            
+            // Parse markdown content and extract sections
+            const sections = content.split(/(?=^##\s)/m).filter(s => s.trim());
+            
+            sections.forEach((section, index) => {
+                if (section.includes('##') && !section.includes('# Initial Mental Model')) {
+                    setTimeout(() => {
+                        const lines = section.split('\n');
+                        const title = lines[0].replace('##', '').trim();
+                        
+                        // Extract description (first few lines after title)
+                        const descLines = lines.slice(1).filter(l => l.trim() && !l.startsWith('-')).slice(0, 3);
+                        const description = descLines.join(' ').trim();
+                        
+                        // Extract any code blocks or examples
+                        const codeMatch = section.match(/```([\s\S]*?)```/);
+                        const example = codeMatch ? codeMatch[1] : 'Generated from RTL Parsing';
+                        
+                        const feature = {
+                            title: title,
+                            description: description || 'Deep dive into the design',
+                            waveform: example
+                        };
+                        addMentalModelFeatureToTab(feature, index);
+                    }, index * 500);
+                }
+            });
+        }
+
+        // Handle real-time updates from the wavesense process
+        function handleRealTimeUpdate(data) {
+            switch (data.type) {
+                case 'iteration_start':
+                    iterationCount++;
+                    document.getElementById('iterationCount').textContent = iterationCount;
+                    addTerminalLine('warning', `=== Iteration ${iterationCount} ===`);
+                    break;
+                    
+                case 'step_start':
+                    updateStepStatus(data.step_index, 'active');
+                    addTerminalLine('text', `Executing ${data.step_name}...`);
+                    if (data.step_index === 2) { // Simulation step
+                        document.getElementById('waveformViewer').style.display = 'block';
+                    }
+                    break;
+                    
+                case 'step_complete':
+                    updateStepStatus(data.step_index, 'completed');
+                    addTerminalLine('success', `✓ ${data.step_name} completed`);
+                    if (data.details) {
+                        addTerminalLine('text', data.details);
+                    }
+                    break;
+                    
+                case 'progress':
+                    const progressBar = document.getElementById('progressBar');
+                    if (window.innerWidth <= 1200) {
+                        progressBar.style.width = `${data.percentage}%`;
+                        progressBar.style.height = '100%';
+                    } else {
+                        progressBar.style.height = `${data.percentage}%`;
+                        progressBar.style.width = '100%';
+                    }
+                    if (data.hypotheses_count) {
+                        document.getElementById('hypothesesCount').textContent = data.hypotheses_count;
+                    }
+                    if (data.features_count) {
+                        document.getElementById('featuresFound').textContent = data.features_count;
+                    }
+                    break;
+                    
+                case 'terminal_output':
+                    const outputType = data.level || 'text';
+                    addTerminalLine(outputType, data.message);
+                    break;
+                    
+                case 'error':
+                    addTerminalLine('error', data.message);
+                    break;
+                    
+                default:
+                    addTerminalLine('text', data.message || JSON.stringify(data));
+            }
+        }
+
+        // Load generated artifacts after analysis with retry logic
+        async function loadGeneratedArtifacts(designName) {
+            const maxRetries = 20; // Try for up to 10 minutes (20 * 30s)
+            const retryDelay = 30000; // 30 seconds between retries
+            let retryCount = 0;
+            
+            addTerminalLine('text', `Waiting for ${designName}_artifacts/ directory to be created...`);
+            
+            const checkArtifacts = async () => {
+                try {
+                    // First check if the artifacts directory exists by trying to access any file
+                    const testResponse = await fetch(`${API_BASE}/${designName}_artifacts/`);
+                    
+                    if (testResponse.status === 404) {
+                        // Directory doesn't exist yet
+                        retryCount++;
+                        if (retryCount <= maxRetries) {
+                            addTerminalLine('text', `Artifacts directory not found. Waiting... (${retryCount}/${maxRetries})`);
+                            setTimeout(checkArtifacts, retryDelay);
+                            return;
+                        } else {
+                            addTerminalLine('warning', 'Artifacts directory not created after maximum wait time. Using example data.');
+                            generateMentalModel();
+                            return;
+                        }
+                    }
+                    
+                    // Directory exists, now try to load artifacts
+                    addTerminalLine('success', `Found ${designName}_artifacts/ directory! Loading artifacts...`);
+                    await loadArtifactFiles(designName);
+                    
+                } catch (error) {
+                    retryCount++;
+                    if (retryCount <= maxRetries) {
+                        addTerminalLine('text', `Checking for artifacts... (${retryCount}/${maxRetries})`);
+                        setTimeout(checkArtifacts, retryDelay);
+                    } else {
+                        addTerminalLine('warning', 'Could not load artifacts after maximum retries. Using example data.');
+                        generateMentalModel();
+                    }
+                }
+            };
+            
+            // Start checking
+            await checkArtifacts();
+        }
+        
+        // Load individual artifact files once directory exists
+        async function loadArtifactFiles(designName) {
+            const maxFileRetries = 10; // Try for up to 5 minutes for individual files
+            const fileRetryDelay = 30000; // 30 seconds between retries
+            
+            // Try to load mental_model.md with retries
+            const loadMentalModel = async (retryCount = 0) => {
+                try {
+                    const response = await fetch(`${API_BASE}/${designName}_artifacts/mental_model.md`);
+                    if (response.ok) {
+                        const mentalModelContent = await response.text();
+                        generateRealMentalModel(mentalModelContent);
+                        addTerminalLine('success', 'Loaded mental model from generated artifacts');
+                    } else if (response.status === 404 && retryCount < maxFileRetries) {
+                        addTerminalLine('text', `Waiting for mental_model.md... (${retryCount + 1}/${maxFileRetries})`);
+                        setTimeout(() => loadMentalModel(retryCount + 1), fileRetryDelay);
+                        return;
+                    } else {
+                        addTerminalLine('info', 'Mental model file not found, using example data');
+                        generateMentalModel();
+                    }
+                } catch (error) {
+                    if (retryCount < maxFileRetries) {
+                        setTimeout(() => loadMentalModel(retryCount + 1), fileRetryDelay);
+                    } else {
+                        addTerminalLine('info', 'Using example mental model data');
+                        generateMentalModel();
+                    }
+                }
+            };
+            
+            // Load other artifacts (with less aggressive retries)
+            await loadMentalModel();
+            await loadWaveformData(designName);
+            await loadHypotheses(designName);
+        }
+
+        // Parse and display real mental model
+        function generateRealMentalModel(content) {
+            const mentalModel = document.getElementById('mentalModel');
+            mentalModel.innerHTML = '';
+            
+            // Parse the actual mental_model.md content
+            const sections = content.split(/(?=^[A-Z])/m).filter(s => s.trim());
+            
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    const lines = section.split('\n');
+                    const title = lines[0].trim();
+                    const description = lines.slice(1, 3).join('\n').trim();
+                    
+                    // Extract waveform data if present
+                    const waveformMatch = section.match(/```([\s\S]*?)```/);
+                    const waveform = waveformMatch ? waveformMatch[1] : 'No waveform data available';
+                    
+                    const featureCard = document.createElement('div');
+                    featureCard.className = 'feature-card';
+                    featureCard.innerHTML = `
+                        <div class="feature-title">${title}</div>
+                        <div class="feature-description">${description}</div>
+                        <div class="feature-waveform">${waveform}</div>
+                    `;
+                    mentalModel.appendChild(featureCard);
+                }, index * 500);
+            });
+        }
+
+        // Load real waveform data from generated files
+        async function loadWaveformData(designName) {
+            const loadWaves = async (retryCount = 0) => {
+                try {
+                    const response = await fetch(`${API_BASE}/${designName}_artifacts/waves/`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        addTerminalLine('success', `Found ${data.files.length} waveform files`);
+                        // Could display real waveform viewer here
+                    } else if (response.status === 404 && retryCount < 5) {
+                        addTerminalLine('text', `Waiting for waveform files... (${retryCount + 1}/5)`);
+                        setTimeout(() => loadWaves(retryCount + 1), 30000);
+                    } else {
+                        addTerminalLine('info', 'Waveform files not found, they will be generated during analysis');
+                    }
+                } catch (error) {
+                    if (retryCount < 5) {
+                        setTimeout(() => loadWaves(retryCount + 1), 30000);
+                    } else {
+                        addTerminalLine('text', 'Using simulated waveform data');
+                    }
+                }
+            };
+            await loadWaves();
+        }
+
+        // Load real hypotheses from generated files
+        async function loadHypotheses(designName) {
+            const loadHyps = async (retryCount = 0) => {
+                try {
+                    const response = await fetch(`${API_BASE}/${designName}_artifacts/hypotheses.md`);
+                    if (response.ok) {
+                        const content = await response.text();
+                        // Parse hypotheses and update counts
+                        const hypothesesCount = (content.match(/^-/gm) || []).length;
+                        document.getElementById('hypothesesCount').textContent = hypothesesCount;
+                        addTerminalLine('success', `Loaded ${hypothesesCount} hypotheses from artifacts`);
+                    } else if (response.status === 404 && retryCount < 5) {
+                        addTerminalLine('text', `Waiting for hypotheses.md... (${retryCount + 1}/5)`);
+                        setTimeout(() => loadHyps(retryCount + 1), 30000);
+                    } else {
+                        addTerminalLine('info', 'Hypotheses file not found, will be generated during analysis');
+                    }
+                } catch (error) {
+                    if (retryCount < 5) {
+                        setTimeout(() => loadHyps(retryCount + 1), 30000);
+                    } else {
+                        addTerminalLine('text', 'Hypotheses not available yet');
+                    }
+                }
+            };
+            await loadHyps();
+        }
+
+        async function simulateAnalysisLoop() {
+            const steps = [
+                { id: 'step1', name: 'Hypothesis Generation', duration: 3000 },
+                { id: 'step2', name: 'Testbench Creation', duration: 2500 },
+                { id: 'step3', name: 'Simulation & Waveforms', duration: 4000 },
+                { id: 'step4', name: 'Analysis & Learning', duration: 3500 },
+                { id: 'step5', name: 'Iteration', duration: 1500 }
+            ];
+            
+            for (let iteration = 0; iteration < 3; iteration++) {
+                iterationCount++;
+                document.getElementById('iterationCount').textContent = iterationCount;
+                
+                addTerminalLine('warning', `=== Iteration ${iterationCount} ===`);
+                
+                for (let i = 0; i < steps.length; i++) {
+                    const step = steps[i];
+                    
+                    // Update UI
+                    updateStepStatus(i, 'active');
+                    addTerminalLine('text', `Executing ${step.name}...`);
+                    
+                    if (i === 2) {
+                        document.getElementById('waveformViewer').style.display = 'block';
+                    }
+                    
+                    // Simulate processing time
+                    await sleep(step.duration);
+                    
+                    // Complete step
+                    updateStepStatus(i, 'completed');
+                    addTerminalLine('success', `✓ ${step.name} completed`);
+                    
+                    // Update progress
+                    const progress = ((iteration * steps.length + i + 1) / (3 * steps.length)) * 100;
+                    document.getElementById('progressBar').style.height = `${progress}%`;
+                    
+                    // Add specific messages for each step
+                    await addStepSpecificMessages(i, iteration);
+                }
+                
+                // Reset steps for next iteration
+                if (iteration < 2) {
+                    setTimeout(() => {
+                        for (let i = 0; i < steps.length; i++) {
+                            updateStepStatus(i, '');
+                        }
+                    }, 1000);
+                }
+            }
+            
+            // Research complete
+            addTerminalLine('success', '🎉 Research complete! Mental model generated.');
+            generateMentalModel();
+            document.getElementById('exportBtn').disabled = false;
+        }
+
+        function updateStepStatus(stepIndex, status) {
+            const step = document.getElementById(`step${stepIndex + 1}`);
+            const stepNumber = step.querySelector('.step-number');
+            
+            step.className = `process-step ${status}`;
+            stepNumber.className = `step-number ${status}`;
+        }
+
+        async function addStepSpecificMessages(stepIndex, iteration) {
+            const messages = [
+                [ // Hypothesis Generation
+                    'Analyzing RTL structure and interfaces...',
+                    'Generating test hypotheses for equality comparisons...',
+                    'Creating scenarios for masked comparisons...',
+                    `Generated ${3 + iteration} new hypotheses`
+                ],
+                [ // Testbench Creation
+                    'Creating SystemVerilog testbenches...',
+                    'Configuring stimulus patterns...',
+                    'Setting up VCD dump infrastructure...',
+                    'Testbench generation complete'
+                ],
+                [ // Simulation
+                    'Launching VCS simulation...',
+                    'Recording signal transitions...',
+                    'Capturing waveform data...',
+                    'Simulation completed successfully'
+                ],
+                [ // Analysis
+                    'Parsing VCD waveforms...',
+                    'Extracting signal behaviors...',
+                    'Validating hypotheses against data...',
+                    'Updating mental model...'
+                ],
+                [ // Iteration
+                    'Preparing next iteration...',
+                    'Refining test strategies...'
+                ]
+            ];
+            
+            const stepMessages = messages[stepIndex];
+            for (const message of stepMessages) {
+                await sleep(500);
+                addTerminalLine('text', message);
+            }
+            
+            // Update counters
+            if (stepIndex === 0) {
+                document.getElementById('hypothesesCount').textContent = (3 + iteration * 2);
+            }
+            if (stepIndex === 3) {
+                document.getElementById('featuresFound').textContent = (2 + iteration);
+            }
+        }
+
+        function generateMentalModel() {
+            const features = [
+                {
+                    title: "Equality vs Inequality Comparison",
+                    description: "MatchEq always performs equality, Match follows match_mode (0: eq, 8: neq). Both signals move together in equality mode but invert in inequality mode.",
+                    waveform: `me00 m00 match_mode t0           c00
+0    0   0          0xDEADBEEF   0xFEEDFACE
+1    1   0          0xDEADBEEF   0xDEADBEEF
+0    0   0          0xDEADBEEF   0xDEADBEF0`
+                },
+                {
+                    title: "NAPOT-Masked Comparison",
+                    description: "Mode 1 uses mask derived from first 0-bit in tdata2. Enables range matching by ignoring low-order bits based on the mask pattern.",
+                    waveform: `me00 m00 match_mode t0                   c00
+0    1   1          0xFFFFFFFFFFFFFF00   0xAAAAAAAAAAAAAA55
+0    1   1          0xFFFFFFFFFFFFFF00   0xAAAAAAAAAAAAAA80
+0    1   1          0xFFFFFFFFFFFFFF00   0xAAAAAAAAAAAAAA00`
+                },
+                {
+                    title: "Relational Comparisons",
+                    description: "Modes 2 and 3 implement unsigned >= and < operations. At equality threshold, mode 2 asserts while mode 3 deasserts.",
+                    waveform: `me00 m00 match_mode t0     c00
+0    0   2          0x100  0xFF    # >= ? NO
+1    1   2          0x100  0x100   # >= ? YES
+0    1   2          0x100  0x200   # >= ? NO`
+                },
+                {
+                    title: "Half-Word Masked Comparisons",
+                    description: "Modes 4 and 5 enable selective comparison of 32-bit halves with configurable bit masks for fine-grained matching control.",
+                    waveform: `me00 m00 match_mode t0               c00
+0    1   4          0xFF000000AA00   0x55000000AA00
+0    0   4          0xFF000000AA00   0x55000000AB00
+0    1   5          0xF0F00000D0A00000 0xD0ADBEEF00000000`
+                }
+            ];
+            
+            const mentalModel = document.getElementById('mentalModel');
+            mentalModel.innerHTML = '';
+            
+            features.forEach((feature, index) => {
+                setTimeout(() => {
+                    addMentalModelFeatureToTab(feature, index);
+                }, index * 500);
+            });
+        }
+
+        function pauseAnalysis() {
+            if (analysisRunning && analysisAbortController) {
+                addTerminalLine('warning', 'Cancelling experiment...');
+                analysisAbortController.abort();
+                
+                // Reset UI state
+                analysisRunning = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                
+                // Reset process steps
+                for (let i = 0; i < 5; i++) {
+                    updateStepStatus(i, '');
+                }
+                
+                addTerminalLine('error', 'Experiment cancelled by user');
+            }
+        }
+
+        function exportResults() {
+            // Implementation for export functionality
+                            addTerminalLine('success', 'Exporting research results...');
+            
+            // Create downloadable content
+            const results = {
+                timestamp: new Date().toISOString(),
+                iterations: iterationCount,
+                hypotheses: document.getElementById('hypothesesCount').textContent,
+                features: document.getElementById('featuresFound').textContent,
+                files: uploadedFiles.map(f => f.name)
+            };
+            
+            const blob = new Blob([JSON.stringify(results, null, 2)], {
+                type: 'application/json'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ai_scientist_results.json';
+            a.click();
+            
+            addTerminalLine('success', 'Results exported successfully');
+        }
+
+        // Generate initial hypotheses based on design type
+        function generateInitialHypotheses(design) {
+            const hypothesesGrid = document.getElementById('hypothesesGrid');
+            hypothesesGrid.innerHTML = '';
+            
+            const designType = design.name.toLowerCase();
+            let hypotheses = [];
+            
+            if (designType.includes('comparator')) {
+                hypotheses = [
+                    {
+                        text: "The comparator should assert match_eq signal when input values are equal, regardless of the match_mode setting.",
+                        context: "Testing basic equality functionality",
+                        status: "testing"
+                    },
+                    {
+                        text: "When match_mode is set to inequality mode (0x8), the match signal should invert compared to equality mode.",
+                        context: "Investigating mode-dependent behavior",
+                        status: "testing"
+                    },
+                    {
+                        text: "NAPOT-masked comparison (mode 1) should ignore low-order bits based on the mask pattern in tdata2.",
+                        context: "Exploring range matching capabilities",
+                        status: "testing"
+                    },
+                    {
+                        text: "Relational modes (2,3) should implement unsigned greater-than-or-equal and less-than comparisons.",
+                        context: "Validating arithmetic comparison modes",
+                        status: "testing"
+                    }
+                ];
+            } else if (designType.includes('counter')) {
+                hypotheses = [
+                    {
+                        text: "The counter should increment on every positive clock edge when enable is asserted.",
+                        context: "Testing basic counting functionality",
+                        status: "testing"
+                    },
+                    {
+                        text: "Reset signal should asynchronously clear the counter to zero regardless of clock state.",
+                        context: "Verifying reset behavior",
+                        status: "testing"
+                    },
+                    {
+                        text: "Counter should wrap around from maximum value (255) back to zero on the next increment.",
+                        context: "Investigating overflow behavior",
+                        status: "testing"
+                    }
+                ];
+            } else if (designType.includes('fifo')) {
+                hypotheses = [
+                    {
+                        text: "Data written to FIFO should appear at output after read clock domain synchronization delay.",
+                        context: "Testing cross-clock domain data transfer",
+                        status: "testing"
+                    },
+                    {
+                        text: "FIFO should generate full flag when write pointer catches up to read pointer.",
+                        context: "Verifying flow control mechanisms",
+                        status: "testing"
+                    },
+                    {
+                        text: "Empty flag should assert when read pointer catches up to write pointer after reset.",
+                        context: "Testing empty condition detection",
+                        status: "testing"
+                    }
+                ];
+            } else {
+                hypotheses = [
+                    {
+                        text: "The design should respond predictably to clock and reset signals.",
+                        context: "Testing fundamental digital logic behavior",
+                        status: "testing"
+                    },
+                    {
+                        text: "Input changes should propagate to outputs within expected timing constraints.",
+                        context: "Investigating combinational logic paths",
+                        status: "testing"
+                    }
+                ];
+            }
+            
+            hypotheses.forEach((hypothesis, index) => {
+                setTimeout(() => {
+                    addHypothesisToTab(hypothesis, index + 1);
+                }, index * 300);
+            });
+            
+            // Update counter (keep both for compatibility)
+            document.getElementById('hypothesesCount').textContent = hypotheses.length;
+        }
+        
+        function addHypothesisCard(hypothesis, number) {
+            const hypothesesGrid = document.getElementById('hypothesesGrid');
+            
+            const card = document.createElement('div');
+            card.className = 'hypothesis-card';
+            card.innerHTML = `
+                <div class="hypothesis-header">
+                    <span class="hypothesis-number">H${number}</span>
+                    <span class="hypothesis-status ${hypothesis.status}">${hypothesis.status.toUpperCase()}</span>
+                </div>
+                <div class="hypothesis-text">${hypothesis.text}</div>
+                <div class="hypothesis-context">${hypothesis.context}</div>
+            `;
+            
+            hypothesesGrid.appendChild(card);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize with sample message and load designs
+        document.addEventListener('DOMContentLoaded', async () => {
+            addTerminalLine('text', 'AI Scientist initializing...');
+            addTerminalLine('text', 'Connecting to server and discovering available designs...');
+            
+            // Load available designs from server
+            await loadAvailableDesigns();
+            
+            addTerminalLine('success', 'AI Scientist ready. Select a design to begin research.');
+        });
+    </script>
+</body>
+</html>
