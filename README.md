@@ -2,41 +2,50 @@
 
 ## What it does?
 
-Understanding of design via waveforms
+Understanding of a chip design via experimentation
 
 ## How it does it?
 
-1. Given RTL design
-2. generate coverpoints
-3. run sim with design and coverpoints
-4. generate waveforms of these covers
-5. log the experiment coverpoints and use waveforms to generate better mental model
-6. repeat 2.
+Given RTL design,
+
+1. Generate interesting coverpoints / stimuli
+2. Run simulation
+3. Generate waveforms for these
+4. Create a mental model of how the design behaves based on the generated artifacts
+5. Repeat from step 1.
 
 ## Implementation details
 
-- Codex CLI as orchestrator
-- Verilator as simulator
-- VCD as waveform format using vcdvcd, vcdcat to render waveforms for the llm
-- Waveform viewer / rendered (todo)
+- Codex CLI as orchestrator agent with the following tools:
+  - Regular bash commands
+  - Verilator/VCS as simulator
+- Compiled design as the environment
+- Waveforms as the observations
 
 ## Usage
 
-- Requirements: `verilator`, `make`, C++17 toolchain in PATH.
-- Orchestrator CLI: `tools/wavesense.py`
+- `OPENAI_API_KEY=<your-key> python src/wavesense.py`
 
-Examples:
+## Requirements
 
-- Build and run simulation, produce `wave.vcd`:
-  - `python3 tools/wavesense.py run --top counter`
-- Generate heuristic coverpoints from RTL:
-  - `python3 tools/wavesense.py coverpoints --rtl rtl --out coverpoints.yaml`
-- Analyze VCD and print a concise waveform summary:
-  - `python3 tools/wavesense.py analyze --vcd wave.vcd --out wave_summary.txt`
-- End-to-end (run sim → coverpoints → analyze):
-  - `python3 tools/wavesense.py all --top counter --vcd wave.vcd --coverpoints coverpoints.yaml --analysis wave_summary.txt`
+- Codex CLI
 
-Notes:
+```
+npm install -g @openai/codex
+```
 
-- Coverpoints are heuristic (regex-based) from the top RTL file and include toggles, min/max for buses, and rollover hints for counters.
-- VCD analysis uses a lightweight built-in parser; no Python deps required.
+~/.codex/config.toml
+
+```
+model = "gpt-5"
+
+# full-auto mode
+approval_policy = "on-request"
+sandbox_mode    = "workspace-write"
+```
+
+- vcdvcd, vcdcat
+
+```
+pip install vcdvcd
+```

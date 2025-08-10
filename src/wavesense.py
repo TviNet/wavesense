@@ -7,29 +7,31 @@ def run_experiment(top_path: str):
         [
             "codex",
             "exec",
-            f"""The goal is to understand the design {top_path} using simulation waveforms.
-Use temp_artifacts_comparator/ as a working directory.
+            f"""The goal is to understand the behaviour of thedesign {top_path} using simulation waveforms.
+Use temp_artifacts/ as a working directory.
 
 <iteration loop>
-1. Maintain a list of coverpoints and the reasons for testing these (note that these may or may not be correct) in hypotheses.md. 
-2. For each coverpoint we need to generate a separate waveform file in waves/wave_id.vcd
-Use vcs to run the simulation and generate the waveforms.
-Maintain the run commands in run.sh
-Note that you may run this step multiple times to get better waveforms so maintain modular code.
-3. Use vcdcat (already available as a bash command) to render the waveforms for each experiment and waves/wave_id.txt
-4. In mental_model.md, maintain a list of features of the design + rendered waveforms.
+1. Hypothesis generation: Update hypotheses.md with the new experiments to understand the design starting from typical use cases of the design.
+(Note that these may or may not be correct, they should just provide interesting insights into the design)
+Output artifacts: hypotheses.md
+
+2. Experimentation: For each hypothesis we need to generate a separate waveform file in waves/wave_id.vcd.
+Also convert the waveforms to a readable format in waves/wave_id.txt.
+Output artifacts: testbenches/testbench_id.sv, testbenches/testbench_filelist.f, run_experiments.sh, waves/wave_id.vcd, waves/wave_id.txt
+
+3. Analysis: In mental_model.md, maintain a list of features of the design + rendered waveforms.
 Each function should highlight how the design is functions when used in various conditions, focus primarily on long term behaviour.
 If multiple experiments correspond to the same function just update it to have the most comprehensive information.
+Output artifacts: mental_model.md
 </iteration loop>
 
-Repeat the iteration loop 5 times until you have a good understanding of the design.
 
 <rendered waveform format>
 - A table with each row one timestep with gaps to skip time.
 - The table should be in a readable, compact format to help understand the design behaviour.
 - Assume clk is implicit and is 1 for all rows.
 - Make sure you take snippets of the waveforms from the .txt files and copy paste them. 
-You may only copy specific lines or columns and stitch them together. 
+You may only copy specific lines or columns and stitch them together along with few lines of context.
 Do not make up values.
 Highlight the key things to look out for in the waveform.
 Example:
@@ -49,24 +51,24 @@ a b c d
 - For multiple clocks, use the same frequency for all clocks.
 - Track task progress externally in task_progress.md and if it exists continue from there.
 - Always read learnings.md and adjust the experiment accordingly. NEVER delete or rewrite learnings.md without looking at the contents.
-- All of the above artifacts (hypotheses.md, run.cmd, waves/wave_id.txt, mental_model.md) should be in temp_artifacts_comparator/ so that you may resume the process from any step in between.
+- All of the above artifacts (hypotheses.md, run.cmd, waves/wave_id.txt, mental_model.md) should be in temp_artifacts/ so that you may resume the process from any step in between.
 - Generate hypotheses / coverpoints one by one and use the previous to generate a good idea to test next.
 - Repeat the process until you have a good understanding of the design.
 - Keep track of all the learnings you encounter in learnings.md so that you don't make the same mistakes when this loop is run again.
 - If these artifacts already exist, check the mental_model.md and hypotheses.md to understand the current state and figure out how to proceed from there.
 </behaviour>
 
-<commands details>
+<commands guidelines>
 - To run the simulation, 
-Step 1: create testbench.sv files
-Step 2: create a testbench_filelist.f file
-Step 3: run the following command:
-```
-bash run_vcs.sh design_filelist.f testbench_filelist.f testbench_top_module
-```
-do not use simv or any other wrappers
-Make sure the testbench.sv files have vcd dumps.
-</commands details>
+    Step 1: create testbench.sv files
+    Step 2: create a testbench_filelist.f file
+    Step 3: run the following command:
+    ```
+    bash run_vcs.sh design_filelist.f testbench_filelist.f testbench_top_module
+    ```
+    do not use simv or any other wrappers
+    Make sure the testbench.sv files have vcd dumps.
+</commands guidelines>
 """,
         ],
         env=os.environ.copy(),
@@ -81,5 +83,5 @@ if __name__ == "__main__":
     #     "/Users/vineet/Projects/Job/ChipStack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/rr_arbiter/arbiter.v with /Users/vineet/Projects/Job/ChipStack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/rr_arbiter/filelist.f"
     # )
     run_experiment(
-        "/home/vivek_cstack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/comparator/comparator.sv with /home/vivek_cstack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/comparator/filelist.f"
+        "/home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/bedrock-rtl/counter/rtl/br_counter.sv with /home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/filelist_counter_rtl_br_counter.f"
     )
