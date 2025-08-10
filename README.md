@@ -8,6 +8,8 @@ WaveSense is an automated tool that uses GPT-5 to understand digital hardware de
 
 ## How does it achieve this?
 
+![Wavesense](./workflow.png)
+
 Given an RTL design,
 
 1. Hypothesis: Come up with interesting coverpoints / stimuli
