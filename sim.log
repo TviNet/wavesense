@@ -1,0 +1,141 @@
+Command: vcs -F /home/vivek_cstack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/comparator/filelist.f \
+-F temp_artifacts_comparator/testbench_filelist.f -top tb_comparator -full64 +define+VCS \
+-sverilog +v2k -timescale=1ns/1ps -R -l sim.log
+                         Chronologic VCS (TM)
+       Version W-2024.09-SP1_Full64 -- Sun Aug 10 03:53:45 2025
+
+                    Copyright (c) 1991 - 2024 Synopsys, Inc.
+   This software and the associated documentation are proprietary to Synopsys,
+ Inc. This software may only be used in accordance with the terms and conditions
+ of a written license agreement with Synopsys, Inc. All other use, reproduction,
+   or distribution of this software is strictly prohibited.  Licensed Products
+     communicate with Synopsys servers for the purpose of providing software
+    updates, detecting software piracy and verifying that customers are using
+    Licensed Products in conformity with the applicable License Key for such
+  Licensed Products. Synopsys will use information gathered in connection with
+    this process to deliver software updates and pursue software pirates and
+                                   infringers.
+
+ Inclusivity & Diversity - Visit SolvNetPlus to read the "Synopsys Statement on
+            Inclusivity and Diversity" (Refer to article 000036315 at
+                        https://solvnetplus.synopsys.com)
+
+Parsing design file '/home/vivek_cstack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/comparator/comparator.sv'
+Parsing design file 'temp_artifacts_comparator/testbench.sv'
+Top Level Modules:
+       tb_comparator
+TimeScale is 1 ns / 1 ps
+
+Error-[ICPSD] Illegal combination of drivers
+temp_artifacts_comparator/testbench.sv, 18
+  Illegal combination of structural and procedural drivers.
+  Variable "c00" is driven by an invalid combination of structural and 
+  procedural drivers. Variables driven by a structural driver cannot have any 
+  other drivers.
+  This variable is declared at "temp_artifacts_comparator/testbench.sv", 18: 
+  logic [63:0] c00;
+  The first driver is at "temp_artifacts_comparator/testbench.sv", 82: c00 = 
+  64'h00000000feedface;
+  The second driver is at "temp_artifacts_comparator/testbench.sv", 22: assign
+  c00 = csr_values[0][0];
+
+
+Error-[ICPSD] Illegal combination of drivers
+temp_artifacts_comparator/testbench.sv, 18
+  Illegal combination of structural and procedural drivers.
+  Variable "c00" is driven by an invalid combination of structural and 
+  procedural drivers. Variables driven by a structural driver cannot have any 
+  other drivers.
+  This variable is declared at "temp_artifacts_comparator/testbench.sv", 18: 
+  logic [63:0] c00;
+  The first driver is at "temp_artifacts_comparator/testbench.sv", 128: 
+  c00[31:0] = 32'h000000aa;
+  The second driver is at "temp_artifacts_comparator/testbench.sv", 22: assign
+  c00 = csr_values[0][0];
+
+
+Error-[ICPSD] Illegal combination of drivers
+temp_artifacts_comparator/testbench.sv, 18
+  Illegal combination of structural and procedural drivers.
+  Variable "c00" is driven by an invalid combination of structural and 
+  procedural drivers. Variables driven by a structural driver cannot have any 
+  other drivers.
+  This variable is declared at "temp_artifacts_comparator/testbench.sv", 18: 
+  logic [63:0] c00;
+  The first driver is at "temp_artifacts_comparator/testbench.sv", 128: 
+  c00[63:32] = 32'h00005500;
+  The second driver is at "temp_artifacts_comparator/testbench.sv", 22: assign
+  c00 = csr_values[0][0];
+
+
+Error-[ICPSD] Illegal combination of drivers
+temp_artifacts_comparator/testbench.sv, 18
+  Illegal combination of structural and procedural drivers.
+  Variable "c00" is driven by an invalid combination of structural and 
+  procedural drivers. Variables driven by a structural driver cannot have any 
+  other drivers.
+  This variable is declared at "temp_artifacts_comparator/testbench.sv", 18: 
+  logic [63:0] c00;
+  The first driver is at "temp_artifacts_comparator/testbench.sv", 129: 
+  c00[31:0] = 32'h000000ab;
+  The second driver is at "temp_artifacts_comparator/testbench.sv", 22: assign
+  c00 = csr_values[0][0];
+
+
+Error-[ICPSD] Illegal combination of drivers
+temp_artifacts_comparator/testbench.sv, 18
+  Illegal combination of structural and procedural drivers.
+  Variable "c00" is driven by an invalid combination of structural and 
+  procedural drivers. Variables driven by a structural driver cannot have any 
+  other drivers.
+  This variable is declared at "temp_artifacts_comparator/testbench.sv", 18: 
+  logic [63:0] c00;
+  The first driver is at "temp_artifacts_comparator/testbench.sv", 134: 
+  c00[63:32] = 32'hd0adbeef;
+  The second driver is at "temp_artifacts_comparator/testbench.sv", 22: assign
+  c00 = csr_values[0][0];
+
+
+Error-[ICPSD] Illegal combination of drivers
+temp_artifacts_comparator/testbench.sv, 18
+  Illegal combination of structural and procedural drivers.
+  Variable "c00" is driven by an invalid combination of structural and 
+  procedural drivers. Variables driven by a structural driver cannot have any 
+  other drivers.
+  This variable is declared at "temp_artifacts_comparator/testbench.sv", 18: 
+  logic [63:0] c00;
+  The first driver is at "temp_artifacts_comparator/testbench.sv", 134: 
+  c00[31:0] = 32'b0;
+  The second driver is at "temp_artifacts_comparator/testbench.sv", 22: assign
+  c00 = csr_values[0][0];
+
+
+Error-[ICPSD] Illegal combination of drivers
+temp_artifacts_comparator/testbench.sv, 18
+  Illegal combination of structural and procedural drivers.
+  Variable "c00" is driven by an invalid combination of structural and 
+  procedural drivers. Variables driven by a structural driver cannot have any 
+  other drivers.
+  This variable is declared at "temp_artifacts_comparator/testbench.sv", 18: 
+  logic [63:0] c00;
+  The first driver is at "temp_artifacts_comparator/testbench.sv", 135: 
+  c00[63:32] = 32'hc0adbeef;
+  The second driver is at "temp_artifacts_comparator/testbench.sv", 22: assign
+  c00 = csr_values[0][0];
+
+
+Error-[ICPSD] Illegal combination of drivers
+temp_artifacts_comparator/testbench.sv, 18
+  Illegal combination of structural and procedural drivers.
+  Variable "c00" is driven by an invalid combination of structural and 
+  procedural drivers. Variables driven by a structural driver cannot have any 
+  other drivers.
+  This variable is declared at "temp_artifacts_comparator/testbench.sv", 18: 
+  logic [63:0] c00;
+  The first driver is at "temp_artifacts_comparator/testbench.sv", 136: 
+  c00[63:32] = 32'hdeadbeef;
+  The second driver is at "temp_artifacts_comparator/testbench.sv", 22: assign
+  c00 = csr_values[0][0];
+
+8 errors
+CPU time: .158 seconds to compile

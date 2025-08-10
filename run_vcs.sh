@@ -1,0 +1,1 @@
+SNPSLMD_LICENSE_FILE=27020@synopsys-license-server LM_LICENSE_FILE=5280@cadence-license-server VERDI_HOME=/home/synopsys/tools/verdi/verdi/W-2024.09-SP1-1 VCS_HOME=/var/synopsys/installations/vcs/vcs/W-2024.09-SP1 /var/synopsys/installations/vcs/vcs/W-2024.09-SP1/bin/vcs -F $1 -F $2 -top $3 -full64 +define+VCS -sverilog +v2k -timescale=1ns/1ps -R -l sim.log

@@ -1,0 +1,10 @@
+{
+  "signal": [],
+  "config": {
+    "hscale": 2,
+    "skin": "narrow"
+  },
+  "head": {
+    "text": "Waveform"
+  }
+}

@@ -8,7 +8,7 @@ def run_experiment(top_path: str):
             "codex",
             "exec",
             f"""The goal is to understand the design {top_path} using simulation waveforms.
-Use temp_artifacts/ as a working directory.
+Use temp_artifacts_comparator/ as a working directory.
 
 <iteration loop>
 1. Maintain a list of coverpoints and the reasons for testing these (note that these may or may not be correct) in hypotheses.md. 
@@ -49,7 +49,7 @@ a b c d
 - For multiple clocks, use the same frequency for all clocks.
 - Track task progress externally in task_progress.md and if it exists continue from there.
 - Always read learnings.md and adjust the experiment accordingly. NEVER delete or rewrite learnings.md without looking at the contents.
-- All of the above artifacts (hypotheses.md, run.cmd, waves/wave_id.txt, mental_model.md) should be in temp_artifacts/ so that you may resume the process from any step in between.
+- All of the above artifacts (hypotheses.md, run.cmd, waves/wave_id.txt, mental_model.md) should be in temp_artifacts_comparator/ so that you may resume the process from any step in between.
 - Generate hypotheses / coverpoints one by one and use the previous to generate a good idea to test next.
 - Repeat the process until you have a good understanding of the design.
 - Keep track of all the learnings you encounter in learnings.md so that you don't make the same mistakes when this loop is run again.
@@ -81,5 +81,5 @@ if __name__ == "__main__":
     #     "/Users/vineet/Projects/Job/ChipStack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/rr_arbiter/arbiter.v with /Users/vineet/Projects/Job/ChipStack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/rr_arbiter/filelist.f"
     # )
     run_experiment(
-        "/home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/bedrock-rtl/counter/rtl/br_counter.sv with /home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/filelist_counter_rtl_br_counter.f"
+        "/home/vivek_cstack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/comparator/comparator.sv with /home/vivek_cstack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/comparator/filelist.f"
     )
