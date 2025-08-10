@@ -2,9 +2,11 @@
 
 ## What it does?
 
-Understanding of a chip design via experimentation
+**AI-powered RTL design improvements through hypothesis and experimentation**
 
-## How it does it?
+WaveSense is an automated tool that uses GPT-5 to understand digital hardware designs by intelligently generating hypothesis, running simulations, and analyzing waveforms to build comprehensive mental models. This tool iteratively runs the experiments until a much better understanding of how chips actually behave is achieved. 
+
+## How does it achieve this?
 
 Given an RTL design,
 
