@@ -1,0 +1,64 @@
+:root{
+  --bg:#0f1115; --panel:#171923; --text:#e6e6e6; --muted:#9aa4b2; --accent:#6ea8fe;
+  --ok:#30c48d; --warn:#f7c948; --danger:#f97066; --grid:#2a2f3a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,Segoe UI,Roboto,Helvetica,Arial}
+header{padding:16px 20px;border-bottom:1px solid var(--grid);background:var(--panel);position:sticky;top:0;z-index:10}
+header h1{margin:0 0 4px 0;font-size:18px}
+header p{margin:0 0 8px 0;color:var(--muted)}
+.controls{display:flex;gap:12px;align-items:center}
+label{color:var(--muted)}
+input{background:#0e1016;color:var(--text);border:1px solid #2a2f3a;border-radius:6px;padding:6px 8px;width:100px}
+input[type="file"]{width:auto;padding:4px 6px;font-size:12px}
+button{background:var(--accent);border:0;color:#081018;border-radius:6px;padding:6px 10px;font-weight:600;cursor:pointer}
+button:hover{filter:brightness(1.1)}
+
+main#app{padding:16px;display:flex;flex-direction:column;gap:16px}
+.feature{background:var(--panel);border:1px solid var(--grid);border-radius:10px;overflow:hidden}
+.feature header{display:flex;justify-content:space-between;align-items:center;background:#1a1d29;border:0}
+.feature h2{margin:0;font-size:16px}
+.feature small{color:var(--muted)}
+.feature .body{padding:12px 16px;display:flex;flex-direction:column;gap:16px}
+.wave-card{border:1px solid var(--grid);border-radius:8px;background:#121521;padding:10px}
+.wave-card .meta{display:flex;gap:10px;align-items:center;color:var(--muted);margin-bottom:8px}
+.tracks-legend{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 8px 0}
+.pill{padding:2px 8px;border-radius:999px;border:1px solid var(--grid)}
+.pill.clk{border-color:#6ea8fe;color:#6ea8fe}
+.pill.rst{border-color:#f97066;color:#f97066}
+.pill.en{border-color:#f7c948;color:#f7c948}
+.pill.count{border-color:#30c48d;color:#30c48d}
+.canvas-wrap{overflow:auto}
+canvas{background:#0c0f14;border:1px solid #22283a;border-radius:6px;display:block}
+.hint{color:var(--muted)}
+
+/* Enhanced styling for waveform interface */
+.controls{flex-wrap:wrap}
+.controls input[type="file"]{width:auto;cursor:pointer}
+.controls button{margin-left:8px}
+
+/* Tooltip styling */
+.tooltip{position:absolute;background:rgba(23,25,35,0.95);border:1px solid var(--grid);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--text);pointer-events:none;z-index:1000;backdrop-filter:blur(4px);max-width:200px}
+
+/* Interactive canvas */
+canvas{cursor:crosshair}
+canvas:hover{border-color:var(--accent)}
+
+/* Waveform enhancements */
+.wave-card{position:relative}
+.wave-controls{display:flex;gap:8px;align-items:center;margin-bottom:8px;padding:4px 0;border-bottom:1px solid var(--grid)}
+.wave-controls button{font-size:11px;padding:3px 6px}
+.wave-controls .zoom-controls{display:flex;gap:4px}
+
+/* Signal info panel */
+.signal-info{background:#0e1016;border:1px solid var(--grid);border-radius:4px;padding:6px 8px;margin-top:8px;font-family:monospace;font-size:11px}
+.signal-info .signal-row{display:flex;justify-content:space-between;margin:2px 0}
+.signal-row .signal-name{color:var(--muted)}
+.signal-row .signal-value{color:var(--accent);font-weight:600}
+
+/* Status indicators */
+.status{padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.status.loaded{background:rgba(48,196,141,0.2);color:var(--ok)}
+.status.error{background:rgba(249,112,102,0.2);color:var(--danger)}
+.status.loading{background:rgba(110,168,254,0.2);color:var(--accent)}
+

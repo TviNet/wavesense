@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standalone WaveJSON Renderer</title>
+    <style>
+        :root {
+            --bg: #0f1115;
+            --panel: #171923;
+            --text: #e6e6e6;
+            --muted: #9aa4b2;
+            --accent: #6ea8fe;
+            --ok: #30c48d;
+            --warn: #f7c948;
+            --danger: #f97066;
+            --grid: #2a2f3a;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font: 14px/1.4 system-ui, Segoe UI, Roboto, Helvetica, Arial;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--panel);
+            border: 1px solid var(--grid);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--panel);
+            border: 1px solid var(--grid);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-input-label:hover {
+            border-color: var(--accent);
+        }
+
+        button {
+            background: var(--accent);
+            border: 0;
+            color: #081018;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 16px 0;
+        }
+
+        .status.success {
+            background: rgba(48, 196, 141, 0.2);
+            color: var(--ok);
+            border: 1px solid var(--ok);
+        }
+
+        .status.error {
+            background: rgba(249, 112, 102, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .waveform-container {
+            background: var(--panel);
+            border: 1px solid var(--grid);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .waveform-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--grid);
+        }
+
+        .json-viewer {
+            background: #0c0f14;
+            border: 1px solid var(--grid);
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Custom ASCII waveform renderer */
+        .wave-renderer {
+            background: #0c0f14;
+            border: 1px solid var(--grid);
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .wave-signal {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .signal-name {
+            width: 120px;
+            color: var(--muted);
+            text-align: right;
+            padding-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .signal-wave {
+            color: var(--accent);
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .signal-clk { color: #6ea8fe; }
+        .signal-rst { color: #f97066; }
+        .signal-en { color: #f7c948; }
+        .signal-data { color: #30c48d; }
+
+        .download-btn {
+            background: var(--ok);
+            margin-left: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Standalone WaveJSON Renderer</h1>
+            <p>Convert waveform txt files to WaveJSON format - No server required!</p>
+            
+            <div class="controls">
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" accept=".txt" />
+                    <div class="file-input-label">Choose Waveform File (.txt)</div>
+                </div>
+                
+                <button id="convertBtn" disabled>Convert & Render</button>
+                <button id="downloadBtn" disabled class="download-btn">Download WaveJSON</button>
+            </div>
+        </header>
+
+        <div id="statusArea"></div>
+        <div id="waveformArea"></div>
+    </div>
+
+    <script>
+        // WaveJSON converter (standalone version)
+        class WaveformConverter {
+            static parseWaveTxt(content) {
+                const lines = content.trim().split('\n');
+                const colMap = {};
+                const dataRows = [];
+                
+                let i = 0;
+                
+                // Parse header section
+                while (i < lines.length) {
+                    const line = lines[i].trim();
+                    if (!line) {
+                        i++;
+                        continue;
+                    }
+                    
+                    if (/^\d+(\s+\d+)+\s*$/.test(line) || line.includes('=====')) {
+                        break;
+                    }
+                    
+                    const match = line.match(/^(\d+)\s+(.+)$/);
+                    if (match) {
+                        colMap[parseInt(match[1])] = match[2].trim();
+                    }
+                    i++;
+                }
+                
+                // Skip separator
+                while (i < lines.length && !lines[i].includes('=====')) {
+                    i++;
+                }
+                i++;
+                
+                // Parse data rows
+                while (i < lines.length) {
+                    const line = lines[i].trim();
+                    if (!line || line.includes('=====')) {
+                        i++;
+                        continue;
+                    }
+                    
+                    const tokens = line.split(/\s+/);
+                    if (tokens.length >= Object.keys(colMap).length) {
+                        dataRows.push(tokens);
+                    }
+                    i++;
+                }
+                
+                return { colMap, dataRows };
+            }
+            
+            static generateWaveString(values, signalType = 'digital') {
+                if (!values || values.length === 0) return { wave: "0" };
+                
+                if (signalType === 'clock') {
+                    return { wave: "P" + ".".repeat(Math.max(0, values.length - 1)) };
+                }
+                
+                if (signalType === 'data') {
+                    let wave = "";
+                    const data = [];
+                    let currentVal = null;
+                    
+                    for (const val of values) {
+                        if (currentVal === null || val !== currentVal) {
+                            wave += "=";
+                            data.push(`0x${val.toString(16).padStart(2, '0')}`);
+                            currentVal = val;
+                        } else {
+                            wave += ".";
+                        }
+                    }
+                    
+                    return { wave, data };
+                }
+                
+                // Digital signal
+                let wave = "";
+                let currentVal = null;
+                
+                for (const val of values) {
+                    if (currentVal === null) {
+                        wave += val === 0 ? "0" : "1";
+                        currentVal = val;
+                    } else if (val !== currentVal) {
+                        wave += val === 0 ? "0" : "1";
+                        currentVal = val;
+                    } else {
+                        wave += ".";
+                    }
+                }
+                
+                return { wave };
+            }
+            
+            static txtToWaveJSON(content, title = "Waveform") {
+                const { colMap, dataRows } = this.parseWaveTxt(content);
+                
+                // Build series data
+                const series = {};
+                const sortedIndices = Object.keys(colMap).map(k => parseInt(k)).sort((a, b) => a - b);
+                
+                for (const idx of sortedIndices) {
+                    series[colMap[idx]] = [];
+                }
+                
+                for (const row of dataRows) {
+                    for (const idx of sortedIndices) {
+                        if (idx < row.length) {
+                            const signalName = colMap[idx];
+                            const value = row[idx];
+                            
+                            if (signalName.toLowerCase().includes('count')) {
+                                try {
+                                    series[signalName].push(parseInt(value, 16));
+                                } catch {
+                                    series[signalName].push(0);
+                                }
+                            } else {
+                                try {
+                                    series[signalName].push(parseInt(value));
+                                } catch {
+                                    series[signalName].push(0);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Generate WaveJSON
+                const signals = [];
+                const signalNames = sortedIndices.map(i => colMap[i]).filter(name => 
+                    !name.toLowerCase().includes('time')
+                );
+                
+                for (const signalName of signalNames) {
+                    if (!series[signalName]) continue;
+                    
+                    const values = series[signalName];
+                    let signalType = 'digital';
+                    
+                    if (signalName.toLowerCase().includes('clk')) {
+                        signalType = 'clock';
+                    } else if (signalName.toLowerCase().includes('count')) {
+                        signalType = 'data';
+                    }
+                    
+                    const result = this.generateWaveString(values, signalType);
+                    const signal = {
+                        name: signalName,
+                        wave: result.wave
+                    };
+                    
+                    if (result.data) {
+                        signal.data = result.data;
+                    }
+                    
+                    signals.push(signal);
+                }
+                
+                return {
+                    signal: signals,
+                    config: {
+                        hscale: 2,
+                        skin: "narrow"
+                    },
+                    head: {
+                        text: title
+                    }
+                };
+            }
+
+            // ASCII art renderer for waveforms
+            static renderWaveASCII(signal) {
+                const wave = signal.wave;
+                const data = signal.data || [];
+                let result = '';
+                let dataIndex = 0;
+                
+                for (let i = 0; i < wave.length; i++) {
+                    const char = wave[i];
+                    switch (char) {
+                        case '0':
+                            result += '⎺⎺';
+                            break;
+                        case '1':
+                            result += '⎺⎺';
+                            break;
+                        case 'P':
+                            result += '⎺⎺';
+                            break;
+                        case '=':
+                            if (data && data[dataIndex]) {
+                                result += `⎺${data[dataIndex]}⎺`;
+                                dataIndex++;
+                            } else {
+                                result += '⎺⎺';
+                            }
+                            break;
+                        case '.':
+                            result += '⎺⎺';
+                            break;
+                        default:
+                            result += char;
+                    }
+                }
+                
+                return result;
+            }
+        }
+
+        // UI Logic
+        const fileInput = document.getElementById('fileInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusArea = document.getElementById('statusArea');
+        const waveformArea = document.getElementById('waveformArea');
+        
+        let currentWaveJSON = null;
+        let currentFileName = '';
+        
+        fileInput.addEventListener('change', function(e) {
+            convertBtn.disabled = !e.target.files.length;
+            if (e.target.files.length) {
+                currentFileName = e.target.files[0].name;
+            }
+        });
+        
+        convertBtn.addEventListener('click', function() {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    showStatus('Converting to WaveJSON...', 'info');
+                    
+                    const content = e.target.result;
+                    const waveJSON = WaveformConverter.txtToWaveJSON(content, file.name);
+                    currentWaveJSON = waveJSON;
+                    
+                    showStatus(`✅ Converted successfully! Found ${waveJSON.signal.length} signals.`, 'success');
+                    renderWaveform();
+                    downloadBtn.disabled = false;
+                    
+                } catch (error) {
+                    showStatus(`❌ Error: ${error.message}`, 'error');
+                }
+            };
+            
+            reader.onerror = function() {
+                showStatus('❌ Error reading file', 'error');
+            };
+            
+            reader.readAsText(file);
+        });
+
+        downloadBtn.addEventListener('click', function() {
+            if (!currentWaveJSON) return;
+            
+            const jsonString = JSON.stringify(currentWaveJSON, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentFileName.replace('.txt', '.json');
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+        
+        function showStatus(message, type) {
+            statusArea.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function renderWaveform() {
+            if (!currentWaveJSON) return;
+            
+            waveformArea.innerHTML = `
+                <div class="waveform-container">
+                    <div class="waveform-header">
+                        <div style="font-size: 18px; font-weight: 600; color: var(--accent);">
+                            ${currentWaveJSON.head?.text || 'Waveform'}
+                        </div>
+                        <div style="color: var(--muted); font-size: 12px;">
+                            ${currentWaveJSON.signal.length} signals
+                        </div>
+                    </div>
+                    
+                    <div class="wave-renderer" id="waveRenderer"></div>
+                    
+                    <details style="margin-top: 16px;">
+                        <summary style="cursor: pointer; color: var(--muted); margin-bottom: 8px;">
+                            📄 WaveJSON Data (click to expand)
+                        </summary>
+                        <div class="json-viewer">${JSON.stringify(currentWaveJSON, null, 2)}</div>
+                    </details>
+                </div>
+            `;
+            
+            renderASCIIWaveform();
+        }
+        
+        function renderASCIIWaveform() {
+            const renderer = document.getElementById('waveRenderer');
+            let html = '<div style="margin-bottom: 16px; color: var(--muted); font-size: 11px;">ASCII Waveform Representation:</div>';
+            
+            for (const signal of currentWaveJSON.signal) {
+                const waveStr = WaveformConverter.renderWaveASCII(signal);
+                let cssClass = 'signal-wave';
+                
+                if (signal.name.toLowerCase().includes('clk')) cssClass += ' signal-clk';
+                else if (signal.name.toLowerCase().includes('rst')) cssClass += ' signal-rst';
+                else if (signal.name.toLowerCase().includes('en')) cssClass += ' signal-en';
+                else if (signal.name.toLowerCase().includes('count')) cssClass += ' signal-data';
+                
+                html += `
+                    <div class="wave-signal">
+                        <div class="signal-name">${signal.name}:</div>
+                        <div class="${cssClass}">${signal.wave}</div>
+                    </div>
+                `;
+                
+                // Show data values for data signals
+                if (signal.data) {
+                    html += `
+                        <div class="wave-signal" style="margin-left: 132px; font-size: 10px; color: var(--muted);">
+                            Data: ${signal.data.join(' → ')}
+                        </div>
+                    `;
+                }
+            }
+            
+            renderer.innerHTML = html;
+        }
+
+        // Show sample on load
+        window.addEventListener('load', function() {
+            showStatus('📁 Choose a waveform .txt file to convert to WaveJSON format', 'info');
+        });
+    </script>
+</body>
+</html>

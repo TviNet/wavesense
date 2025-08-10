@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WaveSense Feature Viewer</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>WaveSense Feature Viewer</h1>
+      <p>Shows supporting waveforms per feature from mental_model.md</p>
+      <div class="controls">
+        <label>
+          Wave length:
+          <input id="maxSamples" type="number" min="10" max="2000" value="160" />
+        </label>
+        <label>
+          Width(px):
+          <input id="canvasWidth" type="number" min="400" max="2400" value="1000" />
+        </label>
+        <label>
+          Load Wave File:
+          <input id="waveFileInput" type="file" accept=".txt" />
+        </label>
+        <button id="reloadBtn">Reload</button>
+        <button id="loadFileBtn">Load File</button>
+      </div>
+      <noscript>This app requires JavaScript to load waveforms.</noscript>
+    </header>
+
+    <main id="app" aria-live="polite"></main>
+
+    <div id="tooltip" class="tooltip" style="display: none;"></div>
+    
+    <footer>
+      <small>Data source: <code>temp_artifacts/mental_model.md</code> and <code>temp_artifacts/waves/*.txt</code>.</small>
+    </footer>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+  </html>
+

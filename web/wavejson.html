@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WaveJSON Renderer - WaveSense</title>
+    <script src="https://unpkg.com/wavedrom@3.5.0/dist/wavedrom.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f1115;
+            --panel: #171923;
+            --text: #e6e6e6;
+            --muted: #9aa4b2;
+            --accent: #6ea8fe;
+            --ok: #30c48d;
+            --warn: #f7c948;
+            --danger: #f97066;
+            --grid: #2a2f3a;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font: 14px/1.4 system-ui, Segoe UI, Roboto, Helvetica, Arial;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--panel);
+            border: 1px solid var(--grid);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            margin: 0 0 8px 0;
+            color: var(--accent);
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--panel);
+            border: 1px solid var(--grid);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-input-label:hover {
+            border-color: var(--accent);
+            background: rgba(110, 168, 254, 0.1);
+        }
+
+        button {
+            background: var(--accent);
+            border: 0;
+            color: #081018;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            filter: brightness(1.1);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .renderer-options {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .renderer-options label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+        }
+
+        .renderer-options input[type="radio"] {
+            accent-color: var(--accent);
+        }
+
+        .status {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 16px 0;
+        }
+
+        .status.success {
+            background: rgba(48, 196, 141, 0.2);
+            color: var(--ok);
+            border: 1px solid var(--ok);
+        }
+
+        .status.error {
+            background: rgba(249, 112, 102, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .status.info {
+            background: rgba(110, 168, 254, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .waveform-container {
+            background: var(--panel);
+            border: 1px solid var(--grid);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .waveform-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--grid);
+        }
+
+        .waveform-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .waveform-info {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .json-viewer {
+            background: #0c0f14;
+            border: 1px solid var(--grid);
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .wavedrom-container {
+            background: white;
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        /* Custom WaveJSON renderer styles */
+        .custom-wave-renderer {
+            background: #0c0f14;
+            border: 1px solid var(--grid);
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .wave-signal {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-family: monospace;
+        }
+
+        .signal-name {
+            width: 120px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: right;
+            padding-right: 12px;
+        }
+
+        .signal-wave {
+            flex: 1;
+            height: 30px;
+            position: relative;
+        }
+
+        .toggle-section {
+            margin-top: 16px;
+        }
+
+        .toggle-section h4 {
+            margin: 0 0 8px 0;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>WaveJSON Renderer</h1>
+            <p>Convert and render waveform txt files using WaveJSON format</p>
+            
+            <div class="controls">
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" accept=".txt" />
+                    <div class="file-input-label">Choose Waveform File</div>
+                </div>
+                
+                <button id="convertBtn" disabled>Convert & Render</button>
+                
+                <div class="renderer-options">
+                    <label>
+                        <input type="radio" name="renderer" value="wavedrom" checked />
+                        WaveDrom
+                    </label>
+                    <label>
+                        <input type="radio" name="renderer" value="custom" />
+                        Custom
+                    </label>
+                </div>
+            </div>
+        </header>
+
+        <div id="statusArea"></div>
+        <div id="waveformArea"></div>
+    </div>
+
+    <script>
+        // WaveJSON converter (client-side)
+        class WaveformConverter {
+            static parseWaveTxt(content) {
+                const lines = content.trim().split('\n');
+                const colMap = {};
+                const dataRows = [];
+                
+                let i = 0;
+                
+                // Parse header section
+                while (i < lines.length) {
+                    const line = lines[i].trim();
+                    if (!line) {
+                        i++;
+                        continue;
+                    }
+                    
+                    if (/^\d+(\s+\d+)+\s*$/.test(line) || line.includes('=====')) {
+                        break;
+                    }
+                    
+                    const match = line.match(/^(\d+)\s+(.+)$/);
+                    if (match) {
+                        colMap[parseInt(match[1])] = match[2].trim();
+                    }
+                    i++;
+                }
+                
+                // Skip separator
+                while (i < lines.length && !lines[i].includes('=====')) {
+                    i++;
+                }
+                i++;
+                
+                // Parse data rows
+                while (i < lines.length) {
+                    const line = lines[i].trim();
+                    if (!line || line.includes('=====')) {
+                        i++;
+                        continue;
+                    }
+                    
+                    const tokens = line.split(/\s+/);
+                    if (tokens.length >= Object.keys(colMap).length) {
+                        dataRows.push(tokens);
+                    }
+                    i++;
+                }
+                
+                return { colMap, dataRows };
+            }
+            
+            static generateWaveString(values, signalType = 'digital') {
+                if (!values || values.length === 0) return { wave: "0" };
+                
+                if (signalType === 'clock') {
+                    return { wave: "P" + ".".repeat(Math.max(0, values.length - 1)) };
+                }
+                
+                if (signalType === 'data') {
+                    let wave = "";
+                    const data = [];
+                    let currentVal = null;
+                    
+                    for (const val of values) {
+                        if (currentVal === null || val !== currentVal) {
+                            wave += "=";
+                            data.push(`0x${val.toString(16).padStart(2, '0')}`);
+                            currentVal = val;
+                        } else {
+                            wave += ".";
+                        }
+                    }
+                    
+                    return { wave, data };
+                }
+                
+                // Digital signal
+                let wave = "";
+                let currentVal = null;
+                
+                for (const val of values) {
+                    if (currentVal === null) {
+                        wave += val === 0 ? "0" : "1";
+                        currentVal = val;
+                    } else if (val !== currentVal) {
+                        wave += val === 0 ? "0" : "1";
+                        currentVal = val;
+                    } else {
+                        wave += ".";
+                    }
+                }
+                
+                return { wave };
+            }
+            
+            static txtToWaveJSON(content, title = "Waveform") {
+                const { colMap, dataRows } = this.parseWaveTxt(content);
+                
+                // Build series data
+                const series = {};
+                const sortedIndices = Object.keys(colMap).map(k => parseInt(k)).sort((a, b) => a - b);
+                
+                for (const idx of sortedIndices) {
+                    series[colMap[idx]] = [];
+                }
+                
+                for (const row of dataRows) {
+                    for (const idx of sortedIndices) {
+                        if (idx < row.length) {
+                            const signalName = colMap[idx];
+                            const value = row[idx];
+                            
+                            if (signalName.toLowerCase().includes('count')) {
+                                try {
+                                    series[signalName].push(parseInt(value, 16));
+                                } catch {
+                                    series[signalName].push(0);
+                                }
+                            } else {
+                                try {
+                                    series[signalName].push(parseInt(value));
+                                } catch {
+                                    series[signalName].push(0);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Generate WaveJSON
+                const signals = [];
+                const signalNames = sortedIndices.map(i => colMap[i]).filter(name => 
+                    !name.toLowerCase().includes('time')
+                );
+                
+                for (const signalName of signalNames) {
+                    if (!series[signalName]) continue;
+                    
+                    const values = series[signalName];
+                    let signalType = 'digital';
+                    
+                    if (signalName.toLowerCase().includes('clk')) {
+                        signalType = 'clock';
+                    } else if (signalName.toLowerCase().includes('count')) {
+                        signalType = 'data';
+                    }
+                    
+                    const result = this.generateWaveString(values, signalType);
+                    const signal = {
+                        name: signalName,
+                        wave: result.wave
+                    };
+                    
+                    if (result.data) {
+                        signal.data = result.data;
+                    }
+                    
+                    signals.push(signal);
+                }
+                
+                return {
+                    signal: signals,
+                    config: {
+                        hscale: 2,
+                        skin: "narrow"
+                    },
+                    head: {
+                        text: title
+                    }
+                };
+            }
+        }
+
+        // UI Logic
+        const fileInput = document.getElementById('fileInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const statusArea = document.getElementById('statusArea');
+        const waveformArea = document.getElementById('waveformArea');
+        
+        let currentWaveJSON = null;
+        
+        fileInput.addEventListener('change', function(e) {
+            convertBtn.disabled = !e.target.files.length;
+        });
+        
+        convertBtn.addEventListener('click', function() {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    showStatus('Converting to WaveJSON...', 'info');
+                    
+                    const content = e.target.result;
+                    const waveJSON = WaveformConverter.txtToWaveJSON(content, file.name);
+                    currentWaveJSON = waveJSON;
+                    
+                    showStatus(`Converted successfully! Found ${waveJSON.signal.length} signals.`, 'success');
+                    renderWaveform();
+                    
+                } catch (error) {
+                    showStatus(`Error: ${error.message}`, 'error');
+                }
+            };
+            
+            reader.onerror = function() {
+                showStatus('Error reading file', 'error');
+            };
+            
+            reader.readAsText(file);
+        });
+        
+        document.querySelectorAll('input[name="renderer"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (currentWaveJSON) {
+                    renderWaveform();
+                }
+            });
+        });
+        
+        function showStatus(message, type) {
+            statusArea.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function renderWaveform() {
+            if (!currentWaveJSON) return;
+            
+            const renderer = document.querySelector('input[name="renderer"]:checked').value;
+            
+            waveformArea.innerHTML = `
+                <div class="waveform-container">
+                    <div class="waveform-header">
+                        <div class="waveform-title">${currentWaveJSON.head?.text || 'Waveform'}</div>
+                        <div class="waveform-info">${currentWaveJSON.signal.length} signals</div>
+                    </div>
+                    <div id="rendererArea"></div>
+                    <div class="toggle-section">
+                        <h4>WaveJSON Data:</h4>
+                        <div class="json-viewer">${JSON.stringify(currentWaveJSON, null, 2)}</div>
+                    </div>
+                </div>
+            `;
+            
+            const rendererArea = document.getElementById('rendererArea');
+            
+            if (renderer === 'wavedrom') {
+                renderWithWaveDrom(rendererArea);
+            } else {
+                renderWithCustomRenderer(rendererArea);
+            }
+        }
+        
+        function renderWithWaveDrom(container) {
+            container.innerHTML = '<div class="wavedrom-container" id="wavedromDiv"></div>';
+            
+            try {
+                if (typeof WaveDrom === 'undefined') {
+                    throw new Error('WaveDrom library not loaded. Please check your internet connection or use the Custom renderer.');
+                }
+                
+                const wavedromDiv = document.getElementById('wavedromDiv');
+                WaveDrom.renderWaveElement('wavedromDiv', currentWaveJSON);
+            } catch (error) {
+                container.innerHTML = `<div class="status error">WaveDrom rendering error: ${error.message}</div>`;
+            }
+        }
+        
+        function renderWithCustomRenderer(container) {
+            container.innerHTML = '<div class="custom-wave-renderer" id="customRenderer"></div>';
+            
+            const customRenderer = document.getElementById('customRenderer');
+            let html = '';
+            
+            for (const signal of currentWaveJSON.signal) {
+                html += `
+                    <div class="wave-signal">
+                        <div class="signal-name">${signal.name}</div>
+                        <div class="signal-wave">${renderWaveString(signal.wave, signal.data)}</div>
+                    </div>
+                `;
+            }
+            
+            customRenderer.innerHTML = html;
+        }
+        
+        function renderWaveString(wave, data = []) {
+            // Simple text representation for custom renderer
+            let result = '';
+            let dataIndex = 0;
+            
+            for (let i = 0; i < wave.length; i++) {
+                const char = wave[i];
+                switch (char) {
+                    case '0':
+                        result += '⎀';
+                        break;
+                    case '1':
+                        result += '⎃';
+                        break;
+                    case 'P':
+                        result += '⇈';
+                        break;
+                    case '=':
+                        if (data && data[dataIndex]) {
+                            result += `[${data[dataIndex]}]`;
+                            dataIndex++;
+                        } else {
+                            result += '=';
+                        }
+                        break;
+                    case '.':
+                        result += '─';
+                        break;
+                    default:
+                        result += char;
+                }
+            }
+            
+            return result;
+        }
+    </script>
+</body>
+</html>
