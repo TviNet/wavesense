@@ -28,7 +28,10 @@ Repeat the iteration loop 5 times until you have a good understanding of the des
 - A table with each row one timestep with gaps to skip time.
 - The table should be in a readable, compact format to help understand the design behaviour.
 - Assume clk is implicit and is 1 for all rows.
-- Make sure you take snippets of the waveforms from the .txt files and copy paste them. You may only copy specific lines and stitch them together. Do not make up values.
+- Make sure you take snippets of the waveforms from the .txt files and copy paste them. 
+You may only copy specific lines or columns and stitch them together. 
+Do not make up values.
+Highlight the key things to look out for in the waveform.
 Example:
 ```
 a b c d
@@ -78,5 +81,5 @@ if __name__ == "__main__":
     #     "/Users/vineet/Projects/Job/ChipStack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/rr_arbiter/arbiter.v with /Users/vineet/Projects/Job/ChipStack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/rr_arbiter/filelist.f"
     # )
     run_experiment(
-        "/home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/cdc_fifo/rtl/filelist.f with /home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/filelist_counter_rtl_br_counter.f"
+        "/home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/bedrock-rtl/counter/rtl/br_counter.sv with /home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/filelist_counter_rtl_br_counter.f"
     )
