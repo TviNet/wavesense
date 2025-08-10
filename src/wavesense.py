@@ -8,7 +8,7 @@ def run_experiment(task_description: str):
             "codex",
             "exec",
             f"""The goal is to understand the behaviour of the design {task_description} using simulation waveforms.
-Use temp_artifacts/ as a working directory.
+Use <design_name>_artifacts/ as a working directory.
 
 <iteration loop>
 1. Hypothesis generation: Update hypotheses.md with the new experiments to understand the design starting from typical use cases of the design.
@@ -26,7 +26,7 @@ Output artifacts: mental_model.md
 </iteration loop>
 
 <artifacts structure>
-- temp_artifacts/
+- <design_name>_artifacts/
     - hypotheses.md
     - testbenches/
     - waves/
@@ -54,7 +54,7 @@ Output artifacts: mental_model.md
 - Summary of the design behaviour.
 
 ## Observation 1
-- Key points: string
+- Key points with notes on hypothesis prediction correctness: string
 - Rendered waveform:
 ```
 
@@ -62,7 +62,7 @@ Output artifacts: mental_model.md
 
 
 ## Observation 2
-- Key points: string
+- Key points with notes on hypothesis prediction correctness: string
 - Rendered waveform:
 ```
 
