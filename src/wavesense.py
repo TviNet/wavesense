@@ -2,13 +2,13 @@ import os
 import subprocess
 
 
-def run_experiment(task_description: str):
+def run_experiment(task_description: str, output_dir: str):
     subprocess.run(
         [
             "codex",
             "exec",
             f"""The goal is to understand the behaviour of the design {task_description} using simulation waveforms.
-Use <design_name>_artifacts/ as a working directory.
+Use {output_dir} as a working directory.
 
 <iteration loop>
 1. Hypothesis generation: Update hypotheses.md with the new experiments to understand the design starting from typical use cases of the design.
@@ -122,5 +122,6 @@ if __name__ == "__main__":
     #     "/Users/vineet/Projects/Job/ChipStack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/rr_arbiter/arbiter.v with /Users/vineet/Projects/Job/ChipStack/chipstack-ai/kpi/chipstack_kpi/references/dev_set/rr_arbiter/filelist.f"
     # )
     run_experiment(
-        "/home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/bedrock-rtl/counter/rtl/br_counter.sv with /home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/filelist_counter_rtl_br_counter.f"
+        "/home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/bedrock-rtl/counter/rtl/br_counter.sv with /home/vineet/chipstack-ai/kpi/chipstack_kpi/references/dev_set/filelist_counter_rtl_br_counter.f",
+        "temp_artifacts",
     )
