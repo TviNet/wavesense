@@ -2,12 +2,12 @@ import os
 import subprocess
 
 
-def run_experiment(top_path: str):
+def run_experiment(task_description: str):
     subprocess.run(
         [
             "codex",
             "exec",
-            f"""The goal is to understand the behaviour of thedesign {top_path} using simulation waveforms.
+            f"""The goal is to understand the behaviour of the design {task_description} using simulation waveforms.
 Use temp_artifacts/ as a working directory.
 
 <iteration loop>
@@ -25,40 +25,79 @@ If multiple experiments correspond to the same function just update it to have t
 Output artifacts: mental_model.md
 </iteration loop>
 
+<artifacts structure>
+- temp_artifacts/
+    - hypotheses.md
+    - testbenches/
+    - waves/
+    - mental_model.md
+    - run_experiments.sh
+</artifacts structure>
+
+<hypothesis format>
+- Use a yaml format to list the hypotheses.
+- Hypothesis 1:
+    - Description: string
+    - Motivation: string
+    - Prediction: string
+- Hypothesis 2:
+    - Description: string
+    - Motivation: string
+    - Prediction: string
+- ...
+</hypothesis format>
+
+<mental model format>
+- Use a markdown format to enumerate the mental model.
+- Format:
+## Summary
+- Summary of the design behaviour.
+
+## Observation 1
+- Key points: string
+- Rendered waveform:
+```
+
+```
+
+
+## Observation 2
+- Key points: string
+- Rendered waveform:
+```
+
+```
+...
+</mental model format>
+
 
 <rendered waveform format>
 - A table with each row one timestep with gaps to skip time.
 - The table should be in a readable, compact format to help understand the design behaviour.
 - Assume clk is implicit and is 1 for all rows.
-- Make sure you take snippets of the waveforms from the .txt files and copy paste them. 
-You may only copy specific lines or columns and stitch them together along with few lines of context.
-Do not make up values.
-Highlight the key things to look out for in the waveform.
+- Make sure you take snippets of the waveforms from the .txt files and copy paste them to avoid hallucinations.
+- You may only copy specific lines or columns and stitch them together along with few lines of context.
+- Do not make up values.
+- Highlight the key things as notes to look out for in the waveform.
+- Provide a few extra lines of context to help understand the waveform.
 Example:
 ```
 a b c d
 =========
-0 0 0xFF 0
-1 0 0x00 1
-0 0 0x01 2
-1 0 0x02 3
-0 0 0x03 4
+0 0 0xFF 0 <-- initial value
+1 0 0x00 1 <-- increases
+0 0 0x01 2 <-- increases
+1 0 0x02 3 <-- increases
+0 1 0x03 2 <-- decreases
 ...
 ```
 </rendered waveform format>
 
-<behaviour>
+<domain knowledge>
 - For multiple clocks, use the same frequency for all clocks.
-- Track task progress externally in task_progress.md and if it exists continue from there.
-- Always read learnings.md and adjust the experiment accordingly. NEVER delete or rewrite learnings.md without looking at the contents.
-- All of the above artifacts (hypotheses.md, run.cmd, waves/wave_id.txt, mental_model.md) should be in temp_artifacts/ so that you may resume the process from any step in between.
-- Generate hypotheses / coverpoints one by one and use the previous to generate a good idea to test next.
-- Repeat the process until you have a good understanding of the design.
-- Keep track of all the learnings you encounter in learnings.md so that you don't make the same mistakes when this loop is run again.
-- If these artifacts already exist, check the mental_model.md and hypotheses.md to understand the current state and figure out how to proceed from there.
-</behaviour>
+</domain knowledge>
 
-<commands guidelines>
+<simulation commands guidelines>
 - To run the simulation, 
     Step 1: create testbench.sv files
     Step 2: create a testbench_filelist.f file
@@ -68,7 +107,7 @@ a b c d
     ```
     do not use simv or any other wrappers
     Make sure the testbench.sv files have vcd dumps.
-</commands guidelines>
+</simulation commands guidelines>
 """,
         ],
         env=os.environ.copy(),

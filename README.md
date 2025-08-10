@@ -49,3 +49,6 @@ sandbox_mode    = "workspace-write"
 ```
 pip install vcdvcd
 ```
+
+- EDA simulators
+  Preferably VCS as it is industry grade, verilator may also work based on the design.
